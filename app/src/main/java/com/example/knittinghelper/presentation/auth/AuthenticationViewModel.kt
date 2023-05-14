@@ -30,7 +30,7 @@ class AuthenticationViewModel @Inject constructor(
     val firebaseAuthState : State<Boolean> = _firebaseAuthState
 
 
-    fun  signIn(email: String, password: String) {
+    fun signIn(email: String, password: String) {
         viewModelScope.launch {
             authUseCases.firebaseSignIn(email = email, password = password).collect {
                 _signInState.value = it
@@ -38,7 +38,7 @@ class AuthenticationViewModel @Inject constructor(
         }
     }
 
-    fun signOut(){
+    fun signOut() {
         viewModelScope.launch {
             authUseCases.firebaseSignOut().collect {
                 _signOutState.value = it
@@ -49,7 +49,11 @@ class AuthenticationViewModel @Inject constructor(
         }
     }
 
-    fun signUp(email: String,password: String,username: String){
+    fun signOutEnd() {
+        _signOutState.value = Response.Success(false)
+    }
+
+    fun signUp(email: String,password: String,username: String) {
         viewModelScope.launch {
             authUseCases.firebaseSignUp(email = email, password = password, userName = username)
                 .collect {
@@ -58,7 +62,7 @@ class AuthenticationViewModel @Inject constructor(
         }
     }
 
-    fun getFirebaseAuthState(){
+    fun getFirebaseAuthState() {
         viewModelScope.launch {
             authUseCases.firebaseAuthState().collect {
                 _firebaseAuthState.value = it

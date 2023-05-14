@@ -3,6 +3,7 @@ plugins {
     id 'org.jetbrains.kotlin.android'
     id 'com.google.gms.google-services'
     id 'kotlin-kapt'
+    id 'com.google.dagger.hilt.android'
 }
 
 android {
@@ -38,6 +39,9 @@ android {
     buildFeatures {
         viewBinding true
         compose true
+    }
+    kapt {
+        correctErrorTypes true
     }
     composeOptions {
         kotlinCompilerExtensionVersion '1.4.0'
@@ -77,9 +81,8 @@ dependencies {
     debugImplementation "androidx.compose.ui:ui-tooling:$compose_version"
     debugImplementation "androidx.compose.ui:ui-test-manifest:$compose_version"
 
-    implementation "com.google.dagger:hilt-android:2.33-beta"
-    kapt "com.google.dagger:hilt-android-compiler:2.33-beta"
-    implementation "androidx.hilt:hilt-lifecycle-viewmodel:1.0.0-alpha03"
+    implementation 'com.google.dagger:hilt-android:2.46'
+    kapt 'com.google.dagger:hilt-compiler:2.46'
     kapt "androidx.hilt:hilt-compiler:1.0.0"
     implementation 'androidx.hilt:hilt-navigation-compose:1.1.0-alpha01'
 
