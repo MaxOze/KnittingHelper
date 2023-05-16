@@ -21,12 +21,14 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.example.knittinghelper.presentation.Screens
 import com.example.knittinghelper.util.Response
 
 @Composable
-fun SignUpScreen(navController: NavHostController, viewModel: AuthenticationViewModel){
+fun SignUpScreen(navController: NavHostController){
+    val viewModel : AuthenticationViewModel = hiltViewModel()
     Box(modifier= Modifier.fillMaxSize()){
         Column(modifier= Modifier
             .fillMaxWidth()

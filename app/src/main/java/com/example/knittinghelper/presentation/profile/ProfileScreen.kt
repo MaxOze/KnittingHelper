@@ -19,15 +19,16 @@ import androidx.navigation.NavController
 import com.example.knittinghelper.presentation.Screens
 import com.example.knittinghelper.presentation.auth.AuthenticationViewModel
 import com.example.knittinghelper.presentation.components.MyProfile
-import com.example.knittinghelper.presentation.util.BottomNavigationMenu
+import com.example.knittinghelper.presentation.navigation.BottomNavigationMenu
 import com.example.knittinghelper.util.Response
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProfileScreen(navController: NavController, authenticationViewModel: AuthenticationViewModel) {
+fun ProfileScreen(navController: NavController, navigateToSettings: () -> Unit) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
 
+    val authenticationViewModel: AuthenticationViewModel = hiltViewModel()
     val profileViewModel: ProfileViewModel = hiltViewModel()
     profileViewModel.getUserInfo()
     when(val response = profileViewModel.getUserData.value) {
@@ -49,7 +50,7 @@ fun ProfileScreen(navController: NavController, authenticationViewModel: Authent
                             actions = {
                                 IconButton(
                                     onClick = {
-                                        navController.navigate(Screens.ProfileScreen.route)
+                                        navigateToSettings()
                                     }
                                 ) {
                                     Icon(Icons.Filled.Settings, contentDescription = "settings")
@@ -83,7 +84,7 @@ fun ProfileScreen(navController: NavController, authenticationViewModel: Authent
                         )
                     },
                     bottomBar = {
-                        BottomNavigationMenu(selectedItem = 2, navController = navController)
+                        BottomNavigationMenu(navController = navController)
                     }
                 ) {
                     Column(

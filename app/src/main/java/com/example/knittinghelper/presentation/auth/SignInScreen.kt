@@ -22,12 +22,14 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.example.knittinghelper.presentation.Screens
 import com.example.knittinghelper.util.Response
 
 @Composable
-fun SignInScreen(navController: NavHostController, viewModel : AuthenticationViewModel){
+fun SignInScreen(navController: NavHostController){
+    val viewModel : AuthenticationViewModel = hiltViewModel()
     Box(modifier= Modifier.fillMaxSize()){
         Column(
             modifier= Modifier
@@ -62,7 +64,7 @@ fun SignInScreen(navController: NavHostController, viewModel : AuthenticationVie
             },
                 modifier=Modifier.padding(10.dp),
                 label = {
-                    Text(text = "Enter Your Email:")
+                    Text(text = "Email:")
                 }
             )
             OutlinedTextField(value = passwordState.value, onValueChange ={
@@ -70,7 +72,7 @@ fun SignInScreen(navController: NavHostController, viewModel : AuthenticationVie
             },
                 modifier=Modifier.padding(10.dp),
                 label = {
-                    Text(text = "Enter Your Password:")
+                    Text(text = "Пароль:")
                 },
                 visualTransformation = PasswordVisualTransformation()
             )

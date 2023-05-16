@@ -5,7 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.knittinghelper.domain.model.User
-import com.example.knittinghelper.domain.use_cases.user.UserUseCases
+import com.example.knittinghelper.domain.use_cases.UserUseCases
 import com.example.knittinghelper.util.Response
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel

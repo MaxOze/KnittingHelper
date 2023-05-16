@@ -4,7 +4,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.knittinghelper.domain.use_cases.auth.AuthenticationUseCases
+import com.example.knittinghelper.domain.use_cases.AuthenticationUseCases
 import com.example.knittinghelper.util.Response
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
