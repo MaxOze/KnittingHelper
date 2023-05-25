@@ -1,5 +1,6 @@
 package com.example.knittinghelper.presentation.projects.viewmodels
 
+import android.net.Uri
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
@@ -33,6 +34,9 @@ class ProjectViewModel @Inject constructor(
     private val _createPartData = mutableStateOf<Response<Boolean>>(Response.Success(false))
     val createPartData : State<Response<Boolean>> = _createPartData
 
+    private val _deletePartData = mutableStateOf<Response<Boolean>>(Response.Success(false))
+    val deletePartData : State<Response<Boolean>> = _deletePartData
+
     fun getProjectInfo() {
         if(userId != null) {
             viewModelScope.launch {
@@ -53,20 +57,52 @@ class ProjectViewModel @Inject constructor(
         }
     }
 
-    fun creatPart(
-        projectId: String,
+    fun createPart(
         name: String,
         text: String,
         needle: String,
-        schemeUrls: List<String>,
-        neededRow: Int
+        photoUri: Uri?,
+        neededRow: Int,
     ) {
         if(userId != null) {
+            getProjectInfo()
             viewModelScope.launch {
-                projectUseCases.createPart(projectId, name, text, needle, schemeUrls, neededRow).collect {
-                    _createPartData.value = it
+                if (_getProjectData.value is Response.Success) {
+                    (_getProjectData.value as Response.Success<Project?>).data?.let {
+                        projectUseCases.createPart(
+                            projectId,
+                            name,
+                            text,
+                            needle,
+                            photoUri,
+                            neededRow,
+                            it.neededRows).collect {
+                            _createPartData.value = it
+                        }
+                    }
                 }
             }
         }
+    }
+
+    fun deletePart(part: Part, project: Project) {
+        if(userId != null) {
+            viewModelScope.launch {
+                projectUseCases.deletePart(
+                    projectId,
+                    part.partId,
+                    part.countRow,
+                    part.neededRow,
+                    project.countRows,
+                    project.neededRows
+                ).collect {
+                    _deletePartData.value = it
+                }
+            }
+        }
+    }
+
+    fun deleteOk() {
+        _deletePartData.value = Response.Success(false)
     }
 }

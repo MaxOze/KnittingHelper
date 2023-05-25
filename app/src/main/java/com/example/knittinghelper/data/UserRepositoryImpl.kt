@@ -5,6 +5,7 @@ import com.example.knittinghelper.domain.repository.UserRepository
 import com.example.knittinghelper.util.Constants
 import com.example.knittinghelper.util.Response
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -13,7 +14,8 @@ import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 class UserRepositoryImpl @Inject constructor(
-    private val firestore: FirebaseFirestore
+    private val firestore: FirebaseFirestore,
+    private val storage: FirebaseStorage
 ) : UserRepository {
     private var operationSuccessful = false
 
@@ -24,7 +26,7 @@ class UserRepositoryImpl @Inject constructor(
             .addSnapshotListener{ snapshot, error->
                 val response = if(snapshot!=null) {
                     val userInfo = snapshot.toObject(User::class.java)
-                    Response.Success<User>(userInfo!!)
+                    Response.Success(userInfo!!)
                 } else {
                     Response.Error(error?.message?:error.toString())
                 }
@@ -52,6 +54,78 @@ class UserRepositoryImpl @Inject constructor(
             }
         } catch(e:Exception) {
             Response.Error(e.localizedMessage?:"An Unexpected Error")
+        }
+    }
+
+    override fun subscribe(userId: String, subUserId: String): Flow<Response<Boolean>> = flow {
+        operationSuccessful = false
+        try {
+            var subscribers: ArrayList<String> = arrayListOf()
+            firestore.collection(Constants.COLLECTION_NAME_USERS)
+                .document(userId).get().addOnSuccessListener {
+                    subscribers = it.data?.get("following") as ArrayList<String>
+                }
+            subscribers.add(subUserId)
+            firestore.collection(Constants.COLLECTION_NAME_USERS)
+                .document(userId).update("following", subscribers).addOnSuccessListener {
+                    operationSuccessful = true
+                }.await()
+            if (operationSuccessful) {
+                emit(Response.Success(operationSuccessful))
+            } else {
+                emit(Response.Error("Не удалось подписаться!"))
+            }
+        } catch (e: Exception) {
+            emit(Response.Error(e.localizedMessage ?: "Неизвестная ошибка"))
+        }
+    }
+
+
+
+    override fun unSubscribe(userId: String, subUserId: String): Flow<Response<Boolean>> = flow {
+        operationSuccessful = false
+        try {
+            var subscribers: ArrayList<String> = arrayListOf()
+            firestore.collection(Constants.COLLECTION_NAME_USERS)
+                .document(userId).get().addOnSuccessListener {
+                    subscribers = it.data?.get("following") as ArrayList<String>
+                }
+            subscribers.remove(subUserId)
+            firestore.collection(Constants.COLLECTION_NAME_USERS)
+                .document(userId).update("following", subscribers).addOnSuccessListener {
+                    operationSuccessful = true
+                }.await()
+            if (operationSuccessful) {
+                emit(Response.Success(operationSuccessful))
+            } else {
+                emit(Response.Error("Не удалось отписаться!"))
+            }
+        } catch (e: Exception) {
+            emit(Response.Error(e.localizedMessage ?: "Неизвестная ошибка"))
+        }
+    }
+
+    override fun getUserSubscribers(userId: String): Flow<Response<List<User>>> = callbackFlow {
+        Response.Loading
+        var subscribers: List<String> = emptyList()
+        firestore.collection(Constants.COLLECTION_NAME_USERS)
+            .document(userId).get().addOnSuccessListener {
+                subscribers = it.data?.get("following") as List<String>
+            }
+        val snapShotListener = firestore.collection(Constants.COLLECTION_NAME_USERS)
+            .whereIn("userId", subscribers)
+            .orderBy("userName")
+            .addSnapshotListener{ snapshot, error->
+                val response = if(snapshot!=null) {
+                    val userInfo = snapshot.toObjects(User::class.java)
+                    Response.Success(userInfo)
+                } else {
+                    Response.Error(error?.message?:error.toString())
+                }
+                trySend(response).isSuccess
+            }
+        awaitClose {
+            snapShotListener.remove()
         }
     }
 }

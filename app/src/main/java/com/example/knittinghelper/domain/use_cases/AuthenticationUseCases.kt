@@ -8,7 +8,8 @@ data class AuthenticationUseCases(
     val firebaseAuthState: FirebaseAuthState,
     val firebaseSignIn: FirebaseSignIn,
     val firebaseSignOut: FirebaseSignOut,
-    val firebaseSignUp: FirebaseSignUp
+    val firebaseSignUp: FirebaseSignUp,
+    val deleteUser: DeleteUser
 )
 
 class FirebaseAuthState @Inject constructor(
@@ -40,4 +41,10 @@ class IsUserAuthenticated @Inject constructor(
     private val repository: AuthenticationRepository
 ){
     operator fun invoke() = repository.isUserAuthenticatedInFirebase()
+}
+
+class DeleteUser @Inject constructor(
+    private val repository: AuthenticationRepository
+) {
+    operator fun invoke() = repository.deleteUser()
 }

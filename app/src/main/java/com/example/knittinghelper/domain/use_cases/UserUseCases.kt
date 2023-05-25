@@ -6,7 +6,10 @@ import javax.inject.Inject
 
 data class UserUseCases(
     val getUserDetails: GetUserDetails,
-    val setUserDetails: SetUserDetails
+    val setUserDetails: SetUserDetails,
+    val subscribe: Subscribe,
+    val unSubscribe: UnSubscribe,
+    val getUserSubscribers: GetUserSubscribers
 )
 
 class GetUserDetails @Inject constructor(
@@ -20,4 +23,22 @@ class SetUserDetails @Inject constructor(
 ) {
     operator fun invoke(userId: String, userName: String, bio: String) =
         repository.setUserDetails(userId = userId, userName = userName, bio = bio)
+}
+
+class Subscribe @Inject constructor(
+    private val repository: UserRepository
+) {
+    operator fun invoke(userId: String, subUserId: String) = repository.subscribe(userId, subUserId)
+}
+
+class UnSubscribe @Inject constructor(
+    private val repository: UserRepository
+) {
+    operator fun invoke(userId: String, subUserId: String) = repository.unSubscribe(userId, subUserId)
+}
+
+class GetUserSubscribers @Inject constructor(
+    private val repository: UserRepository
+) {
+    operator fun invoke(userId: String) = repository.getUserSubscribers(userId)
 }

@@ -1,10 +1,14 @@
 package com.example.knittinghelper.domain.model
 
+import com.google.firebase.Timestamp
+
 data class Post(
-    var postId: String = "",
     var userId: String = "",
+    var postId: String = "",
     var userName: String = "",
-    var photoUrls: List<String> = emptyList(),
+    var userPhotoUri: String = "",
+    var photoUris: List<String> = emptyList(),
     var text: String = "",
-    var postDate: String = ""
+    var postDate: Timestamp = Timestamp.now(),
+    var needle: String = ""
 )

@@ -1,5 +1,7 @@
 package com.example.knittinghelper.domain.model
 
+import com.google.firebase.Timestamp
+
 data class Part(
     var projectId: String = "",
     var partId: String = "",
@@ -8,5 +10,7 @@ data class Part(
     var needle: String = "",
     var neededRow: Int = 0,
     var countRow: Int = 0,
-    var schemeUrls: List<String> = emptyList()
+    var photoUri: String = "",
+    var schemeUrls: List<String> = emptyList(),
+    var lastUpdate: Timestamp = Timestamp.now()
 )

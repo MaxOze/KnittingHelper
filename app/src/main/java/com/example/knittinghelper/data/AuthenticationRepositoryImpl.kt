@@ -69,19 +69,47 @@ class AuthenticationRepositoryImpl @Inject constructor(
             auth.createUserWithEmailAndPassword(email, password).addOnSuccessListener {
                 operationSuccessful = true
             }.await()
-            if(operationSuccessful){
+            if(operationSuccessful) {
                 val userId = auth.currentUser?.uid!!
                 val obj = User(userName = userName, userId = userId, password = password, email = email)
                 firestore.collection(Constants.COLLECTION_NAME_USERS).document(userId)
                     .set(obj).addOnSuccessListener {
                     }
                 emit(Response.Success(operationSuccessful))
-            }
-            else{
+            } else {
                 Response.Success(operationSuccessful)
             }
         }
         catch(e:Exception){
+            emit(Response.Error(e.localizedMessage?:"An Unexpected Error"))
+        }
+    }
+
+    override fun deleteUser(): Flow<Response<Boolean>> = flow {
+        var operationSuccessful = false
+        var operation2Successful = false
+        try {
+            emit(Response.Loading)
+            if (auth.currentUser != null) {
+                val userId = auth.currentUser!!.uid
+                auth.currentUser!!.delete().addOnSuccessListener {
+                    operationSuccessful = true
+                }.await()
+                if (operationSuccessful) {
+                    firestore.collection(Constants.COLLECTION_NAME_USERS)
+                        .document(userId).delete().addOnSuccessListener {
+                            operation2Successful = true
+                        }
+                    if (operation2Successful) {
+                        emit(Response.Success(operationSuccessful))
+                    }
+                } else {
+                    emit(Response.Error("Не удалось удалить профиль!"))
+                }
+            } else {
+                emit(Response.Error("Пользователь не залогинен!"))
+            }
+        } catch(e:Exception) {
             emit(Response.Error(e.localizedMessage?:"An Unexpected Error"))
         }
     }

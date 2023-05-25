@@ -7,9 +7,11 @@ data class Project(
     var userId: String = "",
     var name: String = "",
     var text: String = "",
-    var photoUrl: String = "",
-    var videoUrl: String = "",
+    var photoUri: String = "",
+    var videoUri: String = "",
     var needle: String = "",
-    var progress: Float = 0.0F,
-    var lastUpdate: Timestamp = Timestamp.now()
+    var countRows: Int = 0,
+    var neededRows: Int = 0,
+    var lastUpdate: Timestamp = Timestamp.now(),
+    var simpleProject: Boolean = false
 )

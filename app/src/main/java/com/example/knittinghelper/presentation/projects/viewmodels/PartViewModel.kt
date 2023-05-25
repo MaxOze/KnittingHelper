@@ -24,15 +24,29 @@ class PartViewModel @Inject constructor(
     private val userId = auth.currentUser?.uid
     private val projectId: String = checkNotNull(savedStateHandle["projectId"])
     private val partId: String = checkNotNull(savedStateHandle["partId"])
+    private val count: String = checkNotNull(savedStateHandle["count"])
 
     private val _getPartData = mutableStateOf<Response<Part?>>(Response.Success(null))
     val getPartData : State<Response<Part?>> = _getPartData
 
+    private val _updatePartProgress = mutableStateOf<Response<Boolean>>(Response.Success(false))
+    val updatePartProgress : State<Response<Boolean>> = _updatePartProgress
+
     fun getPartInfo() {
         if(userId != null) {
             viewModelScope.launch {
-                projectUseCases.getPart(projectId, partId).collect {
+                projectUseCases.getPart(partId).collect {
                     _getPartData.value = it
+                }
+            }
+        }
+    }
+
+    fun updatePartProgress(oldRows: Int, addRows: Int) {
+        if(userId != null) {
+            viewModelScope.launch {
+                projectUseCases.updatePartProgress(projectId, partId, oldRows, addRows, count.toInt()).collect() {
+                    _updatePartProgress.value = it
                 }
             }
         }

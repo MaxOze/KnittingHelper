@@ -1,4 +1,4 @@
-package com.example.knittinghelper.presentation.profile
+package com.example.knittinghelper.presentation.profile.screens
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -17,7 +17,7 @@ fun SettingsScreen(navController: NavController) {
             TopAppBar(
                 title = { Text("Настройки профиля") },
                 navigationIcon = {
-                    IconButton(onClick = { navController.navigate(Screens.ProfileScreen.route) }) {
+                    IconButton(onClick = { navController.popBackStack() }) {
                         Icon(
                             imageVector = Icons.Filled.ArrowBack,
                             contentDescription = "backToProfile"

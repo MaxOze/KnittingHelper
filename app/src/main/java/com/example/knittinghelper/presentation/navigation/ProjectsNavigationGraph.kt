@@ -3,7 +3,7 @@ package com.example.knittinghelper.presentation.navigation
 import androidx.navigation.*
 import androidx.navigation.compose.composable
 import com.example.knittinghelper.presentation.Screens
-import com.example.knittinghelper.presentation.projects.*
+import com.example.knittinghelper.presentation.projects.screens.*
 
 fun NavGraphBuilder.projectsNavGraph(navController: NavHostController) {
 
@@ -28,7 +28,8 @@ fun NavGraphBuilder.projectsNavGraph(navController: NavHostController) {
         route = Screens.PartScreen.route,
         arguments = listOf(
             navArgument("projectId") { type = NavType.StringType },
-            navArgument("partId") { type = NavType.StringType }
+            navArgument("partId") { type = NavType.StringType },
+            navArgument("count") { type = NavType.StringType }
         )
     ) {
         PartScreen(navController)

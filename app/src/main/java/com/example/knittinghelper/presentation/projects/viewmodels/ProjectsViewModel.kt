@@ -1,5 +1,6 @@
 package com.example.knittinghelper.presentation.projects.viewmodels
 
+import android.net.Uri
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
@@ -29,6 +30,9 @@ class ProjectsViewModel @Inject constructor(
     private val _createProjectData = mutableStateOf<Response<Boolean>>(Response.Success(false))
     val createProjectData : State<Response<Boolean>> = _createProjectData
 
+    private val _deleteProjectData = mutableStateOf<Response<Boolean>>(Response.Success(false))
+    val deleteProjectData : State<Response<Boolean>> = _deleteProjectData
+
     fun getUserProjects() {
         if(userId != null) {
             viewModelScope.launch {
@@ -42,17 +46,33 @@ class ProjectsViewModel @Inject constructor(
     fun createProject(
         name: String,
         text: String,
-        photoUrl: String,
-        videoUrl: String,
-        needle: String
+        photoUri: Uri?,
+        videoUri: String,
+        needle: String,
+        simpleProject: Boolean,
+        neededRows: Int
     ) {
         if(userId != null) {
             viewModelScope.launch {
-                projectUseCases.createProject(userId, name, text, photoUrl, videoUrl, needle).collect {
+                projectUseCases.createProject(userId, name, text, photoUri, videoUri, needle, simpleProject, neededRows).collect {
                     _createProjectData.value = it
                 }
             }
         }
+    }
+
+    fun deleteProject(projectId: String) {
+        if(userId != null) {
+            viewModelScope.launch {
+                projectUseCases.deleteProject(projectId).collect {
+                    _deleteProjectData.value = it
+                }
+            }
+        }
+    }
+
+    fun deleteOk() {
+        _deleteProjectData.value = Response.Success(false)
     }
 
 }

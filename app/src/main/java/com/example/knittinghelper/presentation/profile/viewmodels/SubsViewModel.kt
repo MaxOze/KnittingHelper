@@ -1,4 +1,4 @@
-package com.example.knittinghelper.presentation.profile
+package com.example.knittinghelper.presentation.profile.viewmodels
 
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
@@ -12,41 +12,35 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-
 @HiltViewModel
-class ProfileViewModel @Inject constructor(
+class SubsViewModel @Inject constructor(
     private val auth : FirebaseAuth,
     private val userUseCases: UserUseCases,
 ) : ViewModel() {
 
     private val userId = auth.currentUser?.uid
 
-    private val _getUserData = mutableStateOf<Response<User?>>(Response.Success(null))
-    val getUserData : State<Response<User?>> = _getUserData
+    private val _getUserSubsData = mutableStateOf<Response<List<User>?>>(Response.Success(null))
+    val getUserSubsData : State<Response<List<User>?>> = _getUserSubsData
 
-    private val _setUserData = mutableStateOf<Response<Boolean>>(Response.Success(false))
-    val setUserData : State<Response<Boolean>> = _setUserData
+    private val _unsubscribeData = mutableStateOf<Response<Boolean>>(Response.Success(false))
+    val unsubscribeData : State<Response<Boolean>> = _unsubscribeData
 
-
-    fun getUserInfo() {
+    fun getUserSubs() {
         if(userId != null) {
             viewModelScope.launch {
-                userUseCases.getUserDetails(userId).collect {
-                    _getUserData.value = it
+                userUseCases.getUserSubscribers(userId).collect {
+                    _getUserSubsData.value = it
                 }
             }
         }
     }
 
-    fun setUserInfo(userName: String, bio: String) {
+    fun unsubscribe(subUserId: String) {
         if(userId != null) {
             viewModelScope.launch {
-                userUseCases.setUserDetails(
-                    userId = userId,
-                    userName = userName,
-                    bio = bio
-                ).collect() {
-                    _setUserData.value = it
+                userUseCases.unSubscribe(userId, subUserId).collect {
+                    _unsubscribeData.value = it
                 }
             }
         }

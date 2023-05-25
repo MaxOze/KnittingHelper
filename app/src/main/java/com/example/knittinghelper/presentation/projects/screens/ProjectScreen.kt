@@ -1,99 +1,242 @@
-package com.example.knittinghelper.presentation.projects
+package com.example.knittinghelper.presentation.projects.screens
 
-import android.widget.Toast
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.example.knittinghelper.domain.model.Part
+import com.example.knittinghelper.domain.model.Project
 import com.example.knittinghelper.presentation.Screens
-import com.example.knittinghelper.presentation.components.PartCardComponent
+import com.example.knittinghelper.presentation.components.cards.PartCardComponent
+import com.example.knittinghelper.presentation.components.cards.ProjectCardComponent
 import com.example.knittinghelper.presentation.navigation.BottomNavigationMenu
 import com.example.knittinghelper.presentation.projects.viewmodels.ProjectViewModel
-import com.example.knittinghelper.presentation.projects.viewmodels.ProjectsViewModel
 import com.example.knittinghelper.util.Response
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProjectScreen(navController: NavController) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+    val listState = rememberLazyListState()
+    val expandedFab = remember {
+        derivedStateOf {
+            listState.firstVisibleItemIndex == 0
+        }
+    }
+    val projectState = remember { mutableStateOf<Project?>(null) }
+    val name = remember { mutableStateOf("") }
+    val snackbarHostState = remember { SnackbarHostState() }
+    val delete = remember { mutableStateOf<Part?>(null) }
+    val deleteSuccess = remember { mutableStateOf(0) }
 
     val viewModel: ProjectViewModel = hiltViewModel()
-    viewModel.getProjectInfo()
-    viewModel.getProjectParts()
-    when(val projectResponse = viewModel.getProjectData.value) {
-        is Response.Loading -> {
-            CircularProgressIndicator()
+
+    LaunchedEffect(deleteSuccess) {
+        viewModel.getProjectInfo()
+        viewModel.getProjectParts()
+    }
+
+    Scaffold(
+        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+        topBar = {
+            TopAppBar(
+                scrollBehavior = scrollBehavior,
+                title = { Text("Проект " + name.value) },
+                navigationIcon = {
+                    IconButton(onClick = { navController.popBackStack() }) {
+                        Icon(
+                            imageVector = Icons.Filled.ArrowBack,
+                            contentDescription = "backToProjects"
+                        )
+                    } },
+                colors = TopAppBarDefaults.smallTopAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp)
+                )
+            )
+                 },
+        snackbarHost = { SnackbarHost(snackbarHostState) },
+        floatingActionButton = {
+            ExtendedFloatingActionButton(
+                onClick = { navController.navigate(Screens.CreatePartScreen.route) },
+                expanded = expandedFab.value,
+                icon = { Icon(Icons.Filled.Add, "add icon") },
+                text = { Text(text = "Создать новую часть") },
+            )
+        },
+        floatingActionButtonPosition = FabPosition.End,
+        bottomBar = {
+            BottomNavigationMenu(navController = navController)
         }
-        is Response.Success -> {
-            if(projectResponse.data != null) {
-                when(val partsResponse = viewModel.getProjectPartsData.value) {
-                    is Response.Loading -> {
-                        CircularProgressIndicator()
+    ) {
+        when (val response = viewModel.getProjectPartsData.value) {
+            is Response.Loading -> {
+                Snackbar(modifier = Modifier.padding(16.dp)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceAround
+                    ) {
+                        Text(text = "Загрузка данных проекта...")
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(24.dp),
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
                     }
-                    is Response.Success -> {
-                        val project = projectResponse.data
-                        val parts = partsResponse.data
-                        Scaffold(
-                            modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-                            topBar = {
-                                TopAppBar(
-                                    scrollBehavior = scrollBehavior,
-                                    title = { Text("Проект " + project.name) },
-                                    colors = TopAppBarDefaults.smallTopAppBarColors(
-                                        containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp)
-                                    )
-                                )
-                            },
-                            bottomBar = {
-                                BottomNavigationMenu(navController = navController)
-                            }
+                }
+            }
+            is Response.Success -> {
+                if (delete.value != null) {
+                    AlertDialog(
+                        onDismissRequest = {
+                            delete.value = null
+                        }
+                    ) {
+                        Surface(
+                            modifier = Modifier
+                                .wrapContentWidth()
+                                .wrapContentHeight(),
+                            shape = MaterialTheme.shapes.large,
+                            tonalElevation = AlertDialogDefaults.TonalElevation
                         ) {
-                            LazyColumn(
-                                modifier = Modifier.padding(top = it.calculateTopPadding()),
+                            Column(
+                                modifier = Modifier.padding(16.dp),
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
-                                item {
-                                    Button(
+                                Text(
+                                    text = "Удалить эту часть проекта без возможности возврата?",
+                                )
+                                Spacer(modifier = Modifier.height(24.dp))
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.SpaceAround
+                                ) {
+                                    TextButton(
                                         onClick = {
-                                            navController.navigate("projects-create/" + project.projectId + "/")
-                                        }, modifier = Modifier
-                                            .padding(16.dp)
-                                            .fillMaxWidth()
+                                            viewModel.deletePart(delete.value!!, projectState.value!!)
+                                            delete.value = null
+                                        },
                                     ) {
-                                        Text(text = "Создать новую часть")
+                                        Text("Да")
+                                    }
+                                    TextButton(
+                                        onClick = {
+                                            delete.value = null
+                                        },
+                                    ) {
+                                        Text("Нет")
                                     }
                                 }
-                                if (parts.isEmpty()) {
-                                    item {
-                                        Text(text = "Добавьте новую часть проекта!", color = Color.Blue)
-                                    }
-                                } else {
-                                    items(parts) { part ->
-                                        PartCardComponent(part, navController)
+                            }
+                        }
+                    }
+                }
+                LazyColumn(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    val project = viewModel.getProjectData.value
+                    if (project is Response.Success) {
+                        if (project.data != null) {
+                            name.value = project.data.name
+                            projectState.value = project.data
+                            item {
+                                ProjectCardComponent(it, project.data)
+                            }
+
+                            if (response.data.isEmpty()) {
+                                item {
+                                    Text(text = "Добавьте новые части!", color = Color.Blue)
+                                }
+                            } else {
+                                val parts = response.data
+                                items(parts) { part ->
+                                    PartCardComponent(
+                                        delete,
+                                        project.data.countRows,
+                                        part,
+                                        navController
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+                when (val deleteResponse = viewModel.deletePartData.value) {
+                    is Response.Loading -> {
+                        AlertDialog(onDismissRequest = { }) {
+                            Surface(
+                                modifier = Modifier
+                                    .wrapContentWidth()
+                                    .wrapContentHeight(),
+                                shape = MaterialTheme.shapes.large,
+                                tonalElevation = AlertDialogDefaults.TonalElevation
+                            ) {
+                                Text(text = "Удаление части...")
+                            }
+                        }
+                    }
+                    is Response.Success -> {
+                        if (deleteResponse.data) {
+                            deleteSuccess.value++
+                            AlertDialog(onDismissRequest = { }) {
+                                Surface(
+                                    modifier = Modifier
+                                        .wrapContentWidth()
+                                        .wrapContentHeight(),
+                                    shape = MaterialTheme.shapes.large,
+                                    tonalElevation = AlertDialogDefaults.TonalElevation
+                                ) {
+                                    Column(modifier = Modifier.padding(16.dp)) {
+                                        Text(
+                                            text = "Часть удалена",
+                                        )
+                                        Spacer(modifier = Modifier.height(24.dp))
+                                        TextButton(
+                                            onClick = { viewModel.deleteOk() },
+                                            modifier = Modifier.align(Alignment.End)
+                                        ) {
+                                            Text("Ок")
+                                        }
                                     }
                                 }
                             }
                         }
                     }
                     is Response.Error -> {
-                        Toast.makeText(LocalContext.current, partsResponse.message, Toast.LENGTH_SHORT).show()
+                        AlertDialog(onDismissRequest = { }) {
+                            Surface(
+                                modifier = Modifier
+                                    .wrapContentWidth()
+                                    .wrapContentHeight(),
+                                shape = MaterialTheme.shapes.large,
+                                tonalElevation = AlertDialogDefaults.TonalElevation
+                            ) {
+                                Text(text = deleteResponse.message)
+                            }
+                        }
+                    }
+                }
+            }
+            is Response.Error -> {
+                Snackbar(modifier = Modifier.padding(16.dp)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(text = response.message)
                     }
                 }
             }
         }
-        is Response.Error -> {
-            Toast.makeText(LocalContext.current, projectResponse.message, Toast.LENGTH_SHORT).show()
-        }
     }
-
 }

@@ -21,9 +21,9 @@ enum class TabDirections(
     val route: String,
     val icon: ImageVector
 ) {
-    SOCIAL("social", Icons.Filled.Email),
-    PROJECTS("projects", Icons.Filled.List),
-    PROFILE("profile", Icons.Filled.AccountCircle),
+    SOCIAL("social_root/", Icons.Filled.Email),
+    PROJECTS("projects_root/", Icons.Filled.List),
+    PROFILE("profile_root/", Icons.Filled.AccountCircle),
 }
 @Composable
 fun NavigationGraph() {
@@ -58,7 +58,7 @@ fun NavigationGraph() {
 
         navigation(
             route = TabDirections.PROFILE.route,
-            startDestination = Screens.ProfileScreen.route
+            startDestination = Screens.MyProfileScreen.route
         ) {
             profileNavGraph(navController)
         }

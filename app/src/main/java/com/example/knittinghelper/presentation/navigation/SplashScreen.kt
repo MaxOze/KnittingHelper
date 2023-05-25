@@ -34,7 +34,7 @@ fun SplashScreen(navController: NavController){
         )
         delay(1000)
         if(authValue){
-            navController.navigate(Screens.ProfileScreen.route){
+            navController.navigate(Screens.ProjectsScreen.route){
                 popUpTo(Screens.SplashScreen.route){
                     inclusive = true
                 }
