@@ -17,7 +17,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
@@ -31,43 +33,45 @@ fun ProjectCardComponent(delete: MutableState<String>, project: Project, navCont
     val menu = remember { mutableStateOf(false) }
 
     val date = Date(project.lastUpdate.seconds * 1000L)
-    val format = SimpleDateFormat("HH:mm dd-MM-yy", Locale.getDefault())
+    val format = SimpleDateFormat("HH:mm dd/MM/yy", Locale.getDefault())
     val dateString = format.format(date)
     Card(
         elevation = CardDefaults.cardElevation(defaultElevation = 10.dp, pressedElevation = 3.dp),
         shape = RoundedCornerShape(10.dp),
         modifier = Modifier
-            .padding(16.dp)
+            .padding(top = 16.dp, start = 16.dp, end = 16.dp)
             .clickable(
                 onClick = {
                     navController.navigate("projects/" + project.projectId + "/")
                 }
             )
     ) {
-        Column(
-            modifier = Modifier.padding(16.dp)
-        ) {
+        Column {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(12.dp)) {
                     if(project.photoUri != "") {
                         AsyncImage(
                             model = project.photoUri,
                             contentDescription = "image",
                             modifier = Modifier
-                                .size(48.dp)
-                                .clip(CircleShape)
+                                .size(50.dp)
+                                .clip(CircleShape),
+                            contentScale = ContentScale.Crop
                         )
                     } else {
                         Image(
                             painter = painterResource(id = R.drawable.ic_launcher_background),
                             contentDescription = "Project Image",
                             modifier = Modifier
-                                .size(48.dp)
-                                .clip(CircleShape)
+                                .size(50.dp)
+                                .clip(CircleShape),
+                            contentScale = ContentScale.Crop
                         )
                     }
                     Spacer(modifier = Modifier.width(20.dp))
@@ -99,9 +103,8 @@ fun ProjectCardComponent(delete: MutableState<String>, project: Project, navCont
                     }
                 }
             }
-            Spacer(modifier = Modifier.height(16.dp))
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
@@ -109,12 +112,23 @@ fun ProjectCardComponent(delete: MutableState<String>, project: Project, navCont
                     text = "Прогресс:",
                     style = MaterialTheme.typography.titleMedium,
                 )
+                Spacer(modifier = Modifier.width(12.dp))
                 LinearProgressIndicator(
                     progress = if (project.neededRows == 0) 0.0F else project.countRows / project.neededRows.toFloat(),
                     trackColor = Color.Red,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f).padding(top = 3.dp)
                 )
-                Spacer(modifier = Modifier.width(1.dp))
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = "Последнее изменение:",
+                    style = MaterialTheme.typography.titleMedium,
+                )
+                Spacer(modifier = Modifier.width(12.dp))
                 Text(
                     text = dateString,
                     style = MaterialTheme.typography.bodyLarge,

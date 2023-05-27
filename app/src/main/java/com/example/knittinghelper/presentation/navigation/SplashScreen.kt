@@ -34,7 +34,7 @@ fun SplashScreen(navController: NavController){
         )
         delay(1000)
         if(authValue){
-            navController.navigate(Screens.ProjectsScreen.route){
+            navController.navigate("projects_graph") {
                 popUpTo(Screens.SplashScreen.route){
                     inclusive = true
                 }

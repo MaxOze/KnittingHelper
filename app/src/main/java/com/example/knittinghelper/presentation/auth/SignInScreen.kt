@@ -23,6 +23,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.example.knittinghelper.presentation.Screens
 import com.example.knittinghelper.util.Response
+import kotlinx.coroutines.delay
 
 @Composable
 fun SignInScreen(navController: NavHostController){
@@ -145,9 +146,26 @@ fun SignInScreen(navController: NavHostController){
                 }
                 is Response.Success -> {
                     if(response.data) {
-                        navController.navigate(Screens.ProjectsScreen.route) {
-                            popUpTo(Screens.SignInScreen.route) {
-                                inclusive = true
+                        Snackbar {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.SpaceAround
+                                ) {
+                                    Text(text = "Авторизация...")
+                                    CircularProgressIndicator(
+                                        modifier = Modifier.size(24.dp),
+                                        color = MaterialTheme.colorScheme.onSurface
+                                    )
+                                }
+                            }
+                        }
+                        LaunchedEffect(key1 = true) {
+                            delay(1000)
+                            navController.navigate("projects_graph") {
+                                popUpTo(Screens.SplashScreen.route) {
+                                    inclusive = true
+                                }
                             }
                         }
                     }

@@ -63,23 +63,20 @@ class ProjectViewModel @Inject constructor(
         needle: String,
         photoUri: Uri?,
         neededRow: Int,
+        projectRows: Int
     ) {
         if(userId != null) {
-            getProjectInfo()
             viewModelScope.launch {
-                if (_getProjectData.value is Response.Success) {
-                    (_getProjectData.value as Response.Success<Project?>).data?.let {
-                        projectUseCases.createPart(
-                            projectId,
-                            name,
-                            text,
-                            needle,
-                            photoUri,
-                            neededRow,
-                            it.neededRows).collect {
-                            _createPartData.value = it
-                        }
-                    }
+                projectUseCases.createPart(
+                    projectId,
+                    name,
+                    text,
+                    needle,
+                    photoUri,
+                    neededRow,
+                    projectRows
+                ).collect {
+                    _createPartData.value = it
                 }
             }
         }

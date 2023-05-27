@@ -24,8 +24,8 @@ class ProjectsViewModel @Inject constructor(
 
     private val userId = auth.currentUser?.uid
 
-    private val _getUserProjectsData = mutableStateOf<Response<List<Project>>>(Response.Success(emptyList()))
-    val getUserProjectsData : State<Response<List<Project>>> = _getUserProjectsData
+    private val _getUserProjectsData = mutableStateOf<Response<List<Project>?>>(Response.Success(null))
+    val getUserProjectsData : State<Response<List<Project>?>> = _getUserProjectsData
 
     private val _createProjectData = mutableStateOf<Response<Boolean>>(Response.Success(false))
     val createProjectData : State<Response<Boolean>> = _createProjectData

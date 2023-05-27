@@ -4,6 +4,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
@@ -24,7 +26,8 @@ import com.example.knittinghelper.util.Response
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProjectsScreen(navController: NavController) {
+fun ProjectsScreen(navController: NavController)  {
+
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     val listState = rememberLazyListState()
     val expandedFab = remember {
@@ -41,6 +44,7 @@ fun ProjectsScreen(navController: NavController) {
     LaunchedEffect(deleteSuccess) {
         viewModel.getUserProjects()
     }
+
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
@@ -83,23 +87,24 @@ fun ProjectsScreen(navController: NavController) {
                 }
             }
             is Response.Success -> {
-                if (delete.value.isNotEmpty()) {
-                    AlertDialog(
-                        onDismissRequest = {
-                            delete.value = ""
-                        }
-                    ) {
-                        Surface(
-                            modifier = Modifier
-                                .wrapContentWidth()
-                                .wrapContentHeight(),
-                            shape = MaterialTheme.shapes.large,
-                            tonalElevation = AlertDialogDefaults.TonalElevation
+                if (response.data != null) {
+                    if (delete.value.isNotEmpty()) {
+                        AlertDialog(
+                            onDismissRequest = {
+                                delete.value = ""
+                            }
                         ) {
-                            Column(
-                                modifier = Modifier.padding(16.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally
+                            Surface(
+                                modifier = Modifier
+                                    .wrapContentWidth()
+                                    .wrapContentHeight(),
+                                shape = MaterialTheme.shapes.large,
+                                tonalElevation = AlertDialogDefaults.TonalElevation
                             ) {
+                                Column(
+                                    modifier = Modifier.padding(16.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
                                     Text(
                                         text = "Удалить этот проект без возможности возврата?",
                                     )
@@ -122,46 +127,49 @@ fun ProjectsScreen(navController: NavController) {
                                                 delete.value = ""
                                             },
                                         ) {
-                                        Text("Нет")
+                                            Text("Нет")
                                         }
                                     }
+                                }
                             }
                         }
                     }
-                }
 
-                LazyColumn(
-                    modifier = Modifier.padding(top = it.calculateTopPadding()),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    if (response.data.isEmpty()) {
-                        item {
-                            Text(text = "Добавьте новый проект!", color = Color.Blue)
-                        }
-                    } else {
-                        val projects = response.data
-                        items(projects) { project ->
-                            ProjectCardComponent(delete, project, navController)
-                        }
-                    }
-                }
-                when (val deleteResponse = viewModel.deleteProjectData.value) {
-                    is Response.Loading -> {
-                        AlertDialog(onDismissRequest = { }) {
-                            Surface(
-                                modifier = Modifier
-                                    .wrapContentWidth()
-                                    .wrapContentHeight(),
-                                shape = MaterialTheme.shapes.large,
-                                tonalElevation = AlertDialogDefaults.TonalElevation
-                            ) {
-                                Text(text = "Удаление проекта...")
+                    LazyColumn(
+                        modifier = Modifier
+                            .padding(top = it.calculateTopPadding()),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        if (response.data.isEmpty()) {
+                            item {
+                                Row(
+                                    horizontalArrangement = Arrangement.Center,
+                                    modifier = Modifier.padding(top = 50.dp).fillMaxWidth()
+                                ) {
+                                    TextButton(onClick = { navController.navigate(Screens.CreateProjectScreen.route) }) {
+                                        Text(
+                                            text = "Добавьте новый проект!",
+                                            style = MaterialTheme.typography.titleLarge
+                                        )
+                                    }
+                                }
+
+                            }
+                        } else {
+                            val projects = response.data
+                            items(projects) { project ->
+                                ProjectCardComponent(delete, project, navController)
+                            }
+                            item {
+                                Divider(
+                                    thickness = 0.dp,
+                                    modifier = Modifier.padding(top = 170.dp)
+                                )
                             }
                         }
                     }
-                    is Response.Success -> {
-                        if (deleteResponse.data) {
-                            deleteSuccess.value++
+                    when (val deleteResponse = viewModel.deleteProjectData.value) {
+                        is Response.Loading -> {
                             AlertDialog(onDismissRequest = { }) {
                                 Surface(
                                     modifier = Modifier
@@ -170,32 +178,50 @@ fun ProjectsScreen(navController: NavController) {
                                     shape = MaterialTheme.shapes.large,
                                     tonalElevation = AlertDialogDefaults.TonalElevation
                                 ) {
-                                    Column(modifier = Modifier.padding(16.dp)) {
-                                        Text(
-                                            text = "Проект удален",
-                                        )
-                                        Spacer(modifier = Modifier.height(24.dp))
-                                        TextButton(
-                                            onClick = { viewModel.deleteOk() },
-                                            modifier = Modifier.align(Alignment.End)
-                                        ) {
-                                            Text("Ок")
+                                    Text(text = "Удаление проекта...")
+                                }
+                            }
+                        }
+
+                        is Response.Success -> {
+                            if (deleteResponse.data) {
+                                deleteSuccess.value++
+                                AlertDialog(onDismissRequest = { }) {
+                                    Surface(
+                                        modifier = Modifier
+                                            .wrapContentWidth()
+                                            .wrapContentHeight(),
+                                        shape = MaterialTheme.shapes.large,
+                                        tonalElevation = AlertDialogDefaults.TonalElevation
+                                    ) {
+                                        Column(modifier = Modifier.padding(16.dp)) {
+                                            Text(
+                                                text = "Проект удален",
+                                            )
+                                            Spacer(modifier = Modifier.height(24.dp))
+                                            TextButton(
+                                                onClick = { viewModel.deleteOk() },
+                                                modifier = Modifier.align(Alignment.End)
+                                            ) {
+                                                Text("Ок")
+                                            }
                                         }
                                     }
                                 }
                             }
                         }
-                    }
-                    is Response.Error -> {
-                        AlertDialog(onDismissRequest = { }) {
-                            Surface(
-                                modifier = Modifier
-                                    .wrapContentWidth()
-                                    .wrapContentHeight(),
-                                shape = MaterialTheme.shapes.large,
-                                tonalElevation = AlertDialogDefaults.TonalElevation
-                            ) {
-                                Text(text = deleteResponse.message)
+
+                        is Response.Error -> {
+                            AlertDialog(onDismissRequest = { }) {
+                                Surface(
+                                    modifier = Modifier
+                                        .wrapContentWidth()
+                                        .wrapContentHeight(),
+                                    shape = MaterialTheme.shapes.large,
+                                    tonalElevation = AlertDialogDefaults.TonalElevation
+                                ) {
+                                    Text(text = deleteResponse.message)
+                                }
                             }
                         }
                     }

@@ -17,14 +17,7 @@ import com.example.knittinghelper.presentation.Screens
 import com.example.knittinghelper.presentation.auth.SignInScreen
 import com.example.knittinghelper.presentation.auth.SignUpScreen
 
-enum class TabDirections(
-    val route: String,
-    val icon: ImageVector
-) {
-    SOCIAL("social_root/", Icons.Filled.Email),
-    PROJECTS("projects_root/", Icons.Filled.List),
-    PROFILE("profile_root/", Icons.Filled.AccountCircle),
-}
+
 @Composable
 fun NavigationGraph() {
     val navController = rememberNavController()
@@ -43,21 +36,21 @@ fun NavigationGraph() {
         }
 
         navigation(
-            route = TabDirections.SOCIAL.route,
+            route = "social_graph",
             startDestination = Screens.FeedScreen.route
         ) {
             socialNavGraph(navController)
         }
 
         navigation(
-            route = TabDirections.PROJECTS.route,
+            route = "projects_graph",
             startDestination = Screens.ProjectsScreen.route
         ) {
             projectsNavGraph(navController)
         }
 
         navigation(
-            route = TabDirections.PROFILE.route,
+            route = "profile_graph",
             startDestination = Screens.MyProfileScreen.route
         ) {
             profileNavGraph(navController)

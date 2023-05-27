@@ -149,7 +149,7 @@ fun SignUpScreen(navController: NavHostController){
             Button(
                 onClick = {
                     nameError.value = userNameState.value.isEmpty()
-                    passwordError.value = passwordState.value.length > 6
+                    passwordError.value = passwordState.value.length <= 6
 
                     val isValid = emailState.value.matches(
                         Regex("[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}")
@@ -204,8 +204,8 @@ fun SignUpScreen(navController: NavHostController){
                 }
                 is Response.Success -> {
                     if (response.data) {
-                        navController.navigate(Screens.ProfileScreen.route) {
-                            popUpTo(Screens.SignInScreen.route) {
+                        navController.navigate("projects_graph") {
+                            popUpTo(Screens.SplashScreen.route) {
                                 inclusive = true
                             }
                         }

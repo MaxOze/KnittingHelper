@@ -9,7 +9,7 @@ import com.example.knittinghelper.presentation.profile.screens.*
 
 fun NavGraphBuilder.profileNavGraph(navController: NavHostController) {
 
-    composable(route = Screens.ProfileScreen.route) {
+    composable(route = Screens.MyProfileScreen.route) {
         MyProfileScreen(navController)
     }
     composable(route = Screens.SettingsScreen.route) {

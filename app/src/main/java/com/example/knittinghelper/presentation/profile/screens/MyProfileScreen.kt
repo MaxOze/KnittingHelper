@@ -15,6 +15,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -130,13 +131,16 @@ fun MyProfileScreen(navController: NavController) {
                         Text(text = "Загрузка профиля...")
                         CircularProgressIndicator(
                             modifier = Modifier.size(24.dp),
-                            color = MaterialTheme.colorScheme.onSurface
+                            color = Color.Black
                         )
                     }
                 }
             }
             is Response.Success -> {
                 if (response.data != null) {
+                    if (create.value) {
+
+                    }
                     val user = response.data
                     if (create.value) {
                         CreatePostDialog(profileViewModel, create, user.userName, user.imageUri)
@@ -156,7 +160,7 @@ fun MyProfileScreen(navController: NavController) {
                             }
                             is Response.Success -> {
                                 val posts = postsResponse.data
-                                if (posts != null) {
+                                if (!posts.isNullOrEmpty()) {
                                     items(posts) { post ->
 
                                     }

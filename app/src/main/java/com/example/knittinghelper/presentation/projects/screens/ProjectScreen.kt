@@ -69,7 +69,7 @@ fun ProjectScreen(navController: NavController) {
         snackbarHost = { SnackbarHost(snackbarHostState) },
         floatingActionButton = {
             ExtendedFloatingActionButton(
-                onClick = { navController.navigate(Screens.CreatePartScreen.route) },
+                onClick = { navController.navigate("projects-create/${projectState.value?.projectId}/") },
                 expanded = expandedFab.value,
                 icon = { Icon(Icons.Filled.Add, "add icon") },
                 text = { Text(text = "Создать новую часть") },

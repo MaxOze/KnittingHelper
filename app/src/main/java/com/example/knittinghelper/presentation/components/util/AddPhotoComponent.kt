@@ -31,7 +31,7 @@ fun AddPhotoComponent(selectedPhoto: MutableState<Uri?>) {
         selectedPhoto.value = it
     }
     Row(
-        modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp).height(200.dp),
+        modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp).height(150.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
@@ -40,14 +40,14 @@ fun AddPhotoComponent(selectedPhoto: MutableState<Uri?>) {
                 model = selectedPhoto.value,
                 contentDescription = "kek",
                 contentScale = ContentScale.FillBounds,
-                modifier = Modifier.size(200.dp)
+                modifier = Modifier.size(150.dp)
             )
         } else {
             Image(
                 painter = painterResource(R.drawable.ic_launcher_background),
                 contentDescription = "kek",
                 contentScale = ContentScale.FillBounds,
-                modifier = Modifier.size(200.dp)
+                modifier = Modifier.size(150.dp)
             )
         }
         Button(
