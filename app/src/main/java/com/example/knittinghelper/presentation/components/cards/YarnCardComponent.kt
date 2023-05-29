@@ -129,7 +129,7 @@ fun YarnCardComponent(yarn: Yarn, delete: MutableState<String>, update: MutableS
                             text = { Text(text = "Изменить описание") },
                             onClick = {
                                 menu.value = false
-                                update.value = yarn.yarnId
+                                update.value = "${yarn.yarnId},${yarn.text}"
                             },
                             leadingIcon = {
                                 Icon(

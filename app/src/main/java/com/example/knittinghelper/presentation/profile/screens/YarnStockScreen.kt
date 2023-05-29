@@ -25,6 +25,7 @@ import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
@@ -122,6 +123,58 @@ fun YarnStockScreen(navController: NavController) {
             }
             is Response.Success -> {
                 if (response.data != null) {
+                    if (update.value.isNotEmpty()) {
+                        val strs = update.value.split(",").toTypedArray()
+                        val text = remember { mutableStateOf(strs[1]) }
+                        AlertDialog(
+                            onDismissRequest = {
+                                delete.value = ""
+                            }
+                        ) {
+                            Surface(
+                                modifier = Modifier
+                                    .wrapContentWidth()
+                                    .wrapContentHeight(),
+                                shape = MaterialTheme.shapes.large,
+                                tonalElevation = AlertDialogDefaults.TonalElevation
+                            ) {
+                                Column(
+                                    modifier = Modifier.padding(16.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    Text(
+                                        text = "Изменение заметки",
+                                    )
+                                    Spacer(modifier = Modifier.height(24.dp))
+                                    OutlinedTextField(
+                                        value = text.value,
+                                        onValueChange = { if (it.length <= 100) text.value = it })
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.SpaceAround
+                                    ) {
+                                        TextButton(
+                                            onClick = {
+                                                viewModel.updateYarn(strs[0], text.value, -1)
+                                                update.value = ""
+                                            },
+                                        ) {
+                                            Text("Изменить")
+                                        }
+                                        TextButton(
+                                            onClick = {
+                                                update.value = ""
+                                            },
+                                        ) {
+                                            Text("Отмена")
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
                     if (delete.value.isNotEmpty()) {
                         AlertDialog(
                             onDismissRequest = {
@@ -206,6 +259,62 @@ fun YarnStockScreen(navController: NavController) {
                             }
                         }
                     }
+                    when (val updateResponse = viewModel.updateYarnData.value) {
+                        is Response.Loading -> {
+                            AlertDialog(onDismissRequest = { }) {
+                                Surface(
+                                    modifier = Modifier
+                                        .wrapContentWidth()
+                                        .wrapContentHeight(),
+                                    shape = MaterialTheme.shapes.large,
+                                    tonalElevation = AlertDialogDefaults.TonalElevation
+                                ) {
+                                    Text(text = "Меняем заметку...")
+                                }
+                            }
+                        }
+
+                        is Response.Success -> {
+                            if (updateResponse.data) {
+                                deleteSuccess.value++
+                                AlertDialog(onDismissRequest = { viewModel.updateOk() }) {
+                                    Surface(
+                                        modifier = Modifier
+                                            .wrapContentWidth()
+                                            .wrapContentHeight(),
+                                        shape = MaterialTheme.shapes.large,
+                                        tonalElevation = AlertDialogDefaults.TonalElevation
+                                    ) {
+                                        Column(modifier = Modifier.padding(16.dp)) {
+                                            Text(
+                                                text = "Заметка изменена",
+                                            )
+                                            Spacer(modifier = Modifier.height(24.dp))
+                                            TextButton(
+                                                onClick = { viewModel.updateOk() },
+                                                modifier = Modifier.align(Alignment.End)
+                                            ) {
+                                                Text("Ок")
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        is Response.Error -> {
+                            AlertDialog(onDismissRequest = { viewModel.updateOk() }) {
+                                Surface(
+                                    modifier = Modifier
+                                        .wrapContentWidth()
+                                        .wrapContentHeight(),
+                                    shape = MaterialTheme.shapes.large,
+                                    tonalElevation = AlertDialogDefaults.TonalElevation
+                                ) {
+                                    Text(text = updateResponse.message)
+                                }
+                            }
+                        }
+                    }
                     when (val deleteResponse = viewModel.deleteYarnData.value) {
                         is Response.Loading -> {
                             AlertDialog(onDismissRequest = { }) {
@@ -248,7 +357,6 @@ fun YarnStockScreen(navController: NavController) {
                                 }
                             }
                         }
-
                         is Response.Error -> {
                             AlertDialog(onDismissRequest = { }) {
                                 Surface(
