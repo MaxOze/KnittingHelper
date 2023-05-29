@@ -24,7 +24,7 @@ class CreatePost @Inject constructor(
         userId: String,
         userName: String,
         userPhotoUri: String,
-        photoUris: List<Uri>?,
+        photoUris: List<Uri?>,
         text: String,
         needle: String
     ) = repository.createPost(userId, userName, userPhotoUri, photoUris, text, needle)

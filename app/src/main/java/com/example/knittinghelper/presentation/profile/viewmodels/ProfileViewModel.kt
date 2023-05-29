@@ -77,7 +77,7 @@ class ProfileViewModel @Inject constructor(
     fun createPost(
         userName: String,
         userPhotoUri: String,
-        photoUris: List<Uri>?,
+        photoUris: List<Uri?>,
         text: String,
         needle: String
     ) {
@@ -88,6 +88,10 @@ class ProfileViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    fun undoCreatePost() {
+        _createPostData.value = Response.Success(false)
     }
 
     fun deletePost(

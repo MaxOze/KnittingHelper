@@ -7,6 +7,7 @@ import com.example.knittinghelper.domain.model.Project
 import com.example.knittinghelper.domain.repository.ProjectRepository
 import com.example.knittinghelper.util.Constants
 import com.example.knittinghelper.util.Response
+import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.storage.FirebaseStorage
@@ -109,16 +110,27 @@ class ProjectRepositoryImpl @Inject constructor(
 
     override fun deleteProject(projectId: String): Flow<Response<Boolean>> = flow {
         operationSuccessful = false
+        var operationSuccessful2 = false
         try {
             firestore.collection(Constants.COLLECTION_NAME_PROJECTS)
                 .document(projectId).delete()
                 .addOnSuccessListener {
                     operationSuccessful = true
                 }.await()
-            if(operationSuccessful) {
+            firestore.collection(Constants.COLLECTION_NAME_PARTS)
+                .whereEqualTo("projectId", projectId).get()
+                .addOnSuccessListener {
+                    for (document in it) {
+                        document.reference.delete();
+                    }
+                    operationSuccessful2 = true
+                }.await()
+            if(operationSuccessful && operationSuccessful2) {
                 emit(Response.Success(operationSuccessful))
-            } else {
+            } else if (!operationSuccessful) {
                 emit(Response.Error("Не удалось удалить проект!"))
+            } else if (!operationSuccessful2) {
+                emit(Response.Error("Не удалось удалить части проекта!"))
             }
         } catch(e:Exception) {
             emit(Response.Error(e.localizedMessage?:"Неизвестная ошибка"))
@@ -170,7 +182,7 @@ class ProjectRepositoryImpl @Inject constructor(
         photoUri: Uri?,
         neededRow: Int,
         projectNeededRows: Int
-    ): Flow<Response<Boolean>> = flow{
+    ): Flow<Response<Boolean>> = flow {
         operationSuccessful = false
         try {
             val partId = firestore.collection(Constants.COLLECTION_NAME_PARTS).document().id
@@ -182,6 +194,14 @@ class ProjectRepositoryImpl @Inject constructor(
                 needle = needle,
                 neededRow = neededRow
             )
+            if (photoUri !== null) {
+                val uri = storage.reference.child(Constants.FOLDER_NAME_PARTS)
+                    .child(partId)
+                    .putFile(photoUri).await()
+                    .storage.downloadUrl.await()
+                newPart.photoUri = uri.toString()
+            }
+
             firestore.collection(Constants.COLLECTION_NAME_PARTS)
                 .document(partId).set(newPart)
                 .addOnSuccessListener {
@@ -199,6 +219,11 @@ class ProjectRepositoryImpl @Inject constructor(
         }
     }
 
+    override fun updateSimpleProject(projectId: String, newRows: Int): Flow<Response<Boolean>> = flow {
+        firestore.collection(Constants.COLLECTION_NAME_PROJECTS)
+            .document(projectId).update("countRows", newRows)
+    }
+
     override fun updatePartProgress(
         projectId: String,
         partId: String,
@@ -209,7 +234,8 @@ class ProjectRepositoryImpl @Inject constructor(
         firestore.collection(Constants.COLLECTION_NAME_PARTS)
             .document(partId).update("countRow",addRows)
         firestore.collection(Constants.COLLECTION_NAME_PROJECTS)
-            .document(projectId).update("countRows", projectRows + (addRows - oldRows))
+            .document(projectId).update("countRows", projectRows + (addRows - oldRows),
+                                        "lastUpdate", Timestamp.now())
     }
 
     override fun deletePart(

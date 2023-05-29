@@ -152,6 +152,14 @@ fun CreateProjectScreen(navController: NavController) {
                                 ) {
                                     Text(text = "Не удалось создать проект!")
                                 }
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.End
+                                ) {
+                                    TextButton(onClick = { viewModel.createUndo() }) {
+                                        Text(text = "Ok")
+                                    }
+                                }
                             }
                         }
                     }

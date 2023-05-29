@@ -21,6 +21,7 @@ import com.example.knittinghelper.domain.model.Project
 import com.example.knittinghelper.presentation.Screens
 import com.example.knittinghelper.presentation.components.cards.PartCardComponent
 import com.example.knittinghelper.presentation.components.cards.ProjectCardComponent
+import com.example.knittinghelper.presentation.components.cards.SimpleProjectCardComponent
 import com.example.knittinghelper.presentation.navigation.BottomNavigationMenu
 import com.example.knittinghelper.presentation.projects.viewmodels.ProjectViewModel
 import com.example.knittinghelper.util.Response
@@ -37,6 +38,7 @@ fun ProjectScreen(navController: NavController) {
     }
     val projectState = remember { mutableStateOf<Project?>(null) }
     val name = remember { mutableStateOf("") }
+    val simple = remember { mutableStateOf(true) }
     val snackbarHostState = remember { SnackbarHostState() }
     val delete = remember { mutableStateOf<Part?>(null) }
     val deleteSuccess = remember { mutableStateOf(0) }
@@ -53,7 +55,7 @@ fun ProjectScreen(navController: NavController) {
         topBar = {
             TopAppBar(
                 scrollBehavior = scrollBehavior,
-                title = { Text("Проект " + name.value) },
+                title = { Text(name.value) },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(
@@ -68,12 +70,14 @@ fun ProjectScreen(navController: NavController) {
                  },
         snackbarHost = { SnackbarHost(snackbarHostState) },
         floatingActionButton = {
-            ExtendedFloatingActionButton(
-                onClick = { navController.navigate("projects-create/${projectState.value?.projectId}/") },
-                expanded = expandedFab.value,
-                icon = { Icon(Icons.Filled.Add, "add icon") },
-                text = { Text(text = "Создать новую часть") },
-            )
+            if (!simple.value) {
+                ExtendedFloatingActionButton(
+                    onClick = { navController.navigate("projects-create/${projectState.value?.projectId}/") },
+                    expanded = expandedFab.value,
+                    icon = { Icon(Icons.Filled.Add, "add icon") },
+                    text = { Text(text = "Создать новую часть") },
+                )
+            }
         },
         floatingActionButtonPosition = FabPosition.End,
         bottomBar = {
@@ -150,24 +154,52 @@ fun ProjectScreen(navController: NavController) {
                     if (project is Response.Success) {
                         if (project.data != null) {
                             name.value = project.data.name
+                            simple.value = project.data.simpleProject
                             projectState.value = project.data
-                            item {
-                                ProjectCardComponent(it, project.data)
-                            }
-
-                            if (response.data.isEmpty()) {
+                            if (simple.value) {
                                 item {
-                                    Text(text = "Добавьте новые части!", color = Color.Blue)
+                                    SimpleProjectCardComponent(it, project.data)
                                 }
                             } else {
-                                val parts = response.data
-                                items(parts) { part ->
-                                    PartCardComponent(
-                                        delete,
-                                        project.data.countRows,
-                                        part,
-                                        navController
-                                    )
+                                item {
+                                    ProjectCardComponent(it, project.data)
+                                }
+                                if (response.data.isEmpty()) {
+                                    item {
+                                        Row(
+                                            horizontalArrangement = Arrangement.Center,
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            modifier = Modifier.padding(top = 50.dp)
+                                        ) {
+                                            TextButton(onClick = {
+                                                navController.navigate("projects-create/${projectState.value?.projectId}/")
+                                            }) {
+                                                Text(
+                                                    text = "Добавьте новые части!",
+                                                    color = Color.Blue,
+                                                    style = MaterialTheme.typography.titleLarge
+                                                )
+                                            }
+                                        }
+                                    }
+                                } else {
+                                    val parts = response.data
+                                    items(parts) { part ->
+                                        PartCardComponent(
+                                            delete,
+                                            project.data.countRows,
+                                            part,
+                                            navController
+                                        )
+                                    }
+                                    if (parts.size > 1) {
+                                        item {
+                                            Divider(
+                                                thickness = 0.dp,
+                                                modifier = Modifier.padding(top = 170.dp)
+                                            )
+                                        }
+                                    }
                                 }
                             }
                         }

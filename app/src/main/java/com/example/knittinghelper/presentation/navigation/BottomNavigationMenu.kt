@@ -1,18 +1,13 @@
 package com.example.knittinghelper.presentation.navigation
 
-import androidx.compose.foundation.layout.fillMaxSize
+
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.List
-import androidx.compose.material.icons.filled.ListAlt
+import androidx.compose.material.icons.filled.LibraryBooks
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.outlined.Checklist
-import androidx.compose.material.icons.outlined.Error
 import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.outlined.ListAlt
+import androidx.compose.material.icons.outlined.LibraryBooks
 import androidx.compose.material.icons.outlined.PersonOutline
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -24,12 +19,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
-import androidx.navigation.NavGraph
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
-import com.example.knittinghelper.presentation.Screens
 
 enum class TabDirections(
     val route: String,
@@ -38,7 +30,7 @@ enum class TabDirections(
     val text: String
 ) {
     SOCIAL("social_graph", Icons.Outlined.Home, Icons.Filled.Home,"Главная"),
-    PROJECTS("projects_graph", Icons.Outlined.ListAlt, Icons.Filled.ListAlt, "Проекты"),
+    PROJECTS("projects_graph", Icons.Outlined.LibraryBooks, Icons.Filled.LibraryBooks, "Проекты"),
     PROFILE("profile_graph", Icons.Outlined.PersonOutline, Icons.Filled.Person, "Профиль"),
 }
 
@@ -55,6 +47,7 @@ fun BottomNavigationMenu(navController: NavController) {
                     Icon(
                         imageVector = if (selected == true) tab.selectedIcon else tab.icon,
                         contentDescription = "nav_icon",
+                        modifier = Modifier.size(30.dp)
                     )
                 },
                 label = { Text(tab.text) },

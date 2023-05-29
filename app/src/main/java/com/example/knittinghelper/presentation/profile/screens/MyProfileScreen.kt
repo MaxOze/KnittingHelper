@@ -24,6 +24,7 @@ import androidx.navigation.NavController
 import com.example.knittinghelper.presentation.Screens
 import com.example.knittinghelper.presentation.auth.AuthenticationViewModel
 import com.example.knittinghelper.presentation.components.cards.MyProfile
+import com.example.knittinghelper.presentation.components.cards.PostCardComponent
 import com.example.knittinghelper.presentation.components.util.CreatePostDialog
 import com.example.knittinghelper.presentation.navigation.BottomNavigationMenu
 import com.example.knittinghelper.presentation.profile.viewmodels.ProfileViewModel
@@ -138,16 +139,14 @@ fun MyProfileScreen(navController: NavController) {
             }
             is Response.Success -> {
                 if (response.data != null) {
-                    if (create.value) {
 
-                    }
                     val user = response.data
                     if (create.value) {
-                        CreatePostDialog(profileViewModel, create, user.userName, user.imageUri)
+                        CreatePostDialog(it, profileViewModel, create, user.userName, user.imageUri)
                     }
                     LazyColumn(horizontalAlignment = Alignment.CenterHorizontally) {
                         item {
-                            MyProfile(userName = user.userName, bio = user.bio, photoUri = user.imageUri, paddingValues = it)
+                            MyProfile(user.userName, user.bio, user.imageUri, it, navController)
                         }
                         when (val postsResponse = profileViewModel.getUserPosts.value) {
                             is Response.Loading -> {
@@ -162,11 +161,29 @@ fun MyProfileScreen(navController: NavController) {
                                 val posts = postsResponse.data
                                 if (!posts.isNullOrEmpty()) {
                                     items(posts) { post ->
-
+                                        PostCardComponent(post = post, navController = navController)
+                                    }
+                                    item {
+                                        Divider(
+                                            thickness = 0.dp,
+                                            modifier = Modifier.padding(top = 170.dp)
+                                        )
                                     }
                                 } else {
                                     item {
-                                        Text(text = "Создайте пост")
+                                        Row(
+                                            horizontalArrangement = Arrangement.Center,
+                                            modifier = Modifier
+                                                .padding(top = 50.dp)
+                                                .fillMaxWidth()
+                                        ) {
+                                            TextButton(onClick = { create.value = true }) {
+                                                Text(
+                                                    text = "Создайте первый пост!",
+                                                    style = MaterialTheme.typography.titleLarge
+                                                )
+                                            }
+                                        }
                                     }
                                 }
                             }

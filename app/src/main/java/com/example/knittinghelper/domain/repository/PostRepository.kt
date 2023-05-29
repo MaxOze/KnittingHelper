@@ -11,7 +11,7 @@ interface PostRepository {
         userId: String,
         userName: String,
         userPhotoUri: String,
-        photoUris: List<Uri>?,
+        photoUris: List<Uri?>,
         text: String,
         needle: String): Flow<Response<Boolean>>
     fun deletePost(postId: String): Flow<Response<Boolean>>

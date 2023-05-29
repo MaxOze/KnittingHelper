@@ -28,17 +28,17 @@ class SetUserDetails @Inject constructor(
 class Subscribe @Inject constructor(
     private val repository: UserRepository
 ) {
-    operator fun invoke(userId: String, subUserId: String) = repository.subscribe(userId, subUserId)
+    operator fun invoke(userId: String, userIds: List<String>, subUserId: String) = repository.subscribe(userId, userIds, subUserId)
 }
 
 class UnSubscribe @Inject constructor(
     private val repository: UserRepository
 ) {
-    operator fun invoke(userId: String, subUserId: String) = repository.unSubscribe(userId, subUserId)
+    operator fun invoke(userId: String, userIds: List<String>, subUserId: String) = repository.unSubscribe(userId, userIds, subUserId)
 }
 
 class GetUserSubscribers @Inject constructor(
     private val repository: UserRepository
 ) {
-    operator fun invoke(userId: String) = repository.getUserSubscribers(userId)
+    operator fun invoke(userIds: List<String>) = repository.getUserSubscribers(userIds)
 }

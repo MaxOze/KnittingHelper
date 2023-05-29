@@ -16,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -128,16 +129,18 @@ fun PartScreen(navController: NavController) {
                                     AsyncImage(
                                         model = part.photoUri,
                                         contentDescription = "image",
+                                        contentScale = ContentScale.Crop,
                                         modifier = Modifier
-                                            .size(48.dp)
+                                            .size(60.dp)
                                             .clip(CircleShape)
                                     )
                                 } else {
                                     Image(
                                         painter = painterResource(id = R.drawable.ic_launcher_background),
                                         contentDescription = "Project Image",
+                                        contentScale = ContentScale.Crop,
                                         modifier = Modifier
-                                            .size(48.dp)
+                                            .size(60.dp)
                                             .clip(CircleShape)
                                     )
                                 }
@@ -145,7 +148,7 @@ fun PartScreen(navController: NavController) {
                                 Text(text = part.name)
                             }
                             Divider(
-                                thickness = 2.dp,
+                                thickness = 1.dp,
                                 modifier = Modifier.padding(vertical = 10.dp)
                             )
                             Row(
@@ -186,7 +189,7 @@ fun PartScreen(navController: NavController) {
                                 }
                             }
                             Divider(
-                                thickness = 2.dp,
+                                thickness = 1.dp,
                                 modifier = Modifier.padding(vertical = 10.dp)
                             )
                             Text(text = part.text)

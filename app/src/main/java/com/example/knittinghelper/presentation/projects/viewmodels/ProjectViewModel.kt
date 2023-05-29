@@ -82,6 +82,21 @@ class ProjectViewModel @Inject constructor(
         }
     }
 
+    fun createUndo() {
+        _createPartData.value = Response.Success(false)
+    }
+
+    fun updateSimpleProject(newRows: Int) {
+        if(userId != null) {
+            viewModelScope.launch {
+                projectUseCases.updateSimpleProject(
+                    projectId,
+                    newRows
+                ).collect { }
+            }
+        }
+    }
+
     fun deletePart(part: Part, project: Project) {
         if(userId != null) {
             viewModelScope.launch {

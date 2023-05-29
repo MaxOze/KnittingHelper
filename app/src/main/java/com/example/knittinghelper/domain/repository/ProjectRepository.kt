@@ -24,6 +24,7 @@ interface ProjectRepository {
 
     fun deleteProject(projectId: String): Flow<Response<Boolean>>
 
+    fun updateSimpleProject(projectId: String, newRows: Int) : Flow<Response<Boolean>>
     fun updatePartProgress(
         projectId: String,
         partId: String,

@@ -12,6 +12,7 @@ data class ProjectUseCases(
     val getPart: GetPart,
     val getProjectParts: GetProjectParts,
     val createPart: CreatePart,
+    val updateSimpleProject: UpdateSimpleProject,
     val updatePartProgress: UpdatePartProgress,
     val deletePart: DeletePart
 )
@@ -75,6 +76,15 @@ class CreatePart @Inject constructor(
         neededRow: Int,
         projectNeededRows: Int
     ) = repository.createPart(projectId, name, text, needle, photoUri, neededRow, projectNeededRows)
+}
+
+class UpdateSimpleProject @Inject constructor(
+    private val repository: ProjectRepository
+) {
+    operator fun invoke(
+        projectId: String,
+        newRows: Int
+    ) = repository.updateSimpleProject(projectId, newRows)
 }
 
 class UpdatePartProgress @Inject constructor(

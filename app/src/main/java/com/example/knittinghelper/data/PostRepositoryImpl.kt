@@ -43,7 +43,7 @@ class PostRepositoryImpl @Inject constructor(
         userId: String,
         userName: String,
         userPhotoUri: String,
-        photoUris: List<Uri>?,
+        photoUris: List<Uri?>,
         text: String,
         needle: String
     ): Flow<Response<Boolean>> = flow {
@@ -59,15 +59,17 @@ class PostRepositoryImpl @Inject constructor(
                 needle = needle
 
             )
-            if (photoUris != null) {
+            if (photoUris.isNotEmpty()) {
                 val uriList : ArrayList<String> = arrayListOf()
                 photoUris.forEachIndexed() { index, URI ->
-                    val uri = storage.reference.child(Constants.FOLDER_NAME_POSTS)
-                        .child(postId)
-                        .child(index.toString())
-                        .putFile(URI).await()
-                        .storage.downloadUrl.await()
-                    uriList.add(uri.toString())
+                    if (URI != null) {
+                        val uri = storage.reference.child(Constants.FOLDER_NAME_POSTS)
+                            .child(postId)
+                            .child(index.toString())
+                            .putFile(URI).await()
+                            .storage.downloadUrl.await()
+                        uriList.add(uri.toString())
+                    }
                 }
                 newPost.photoUris = uriList
             }

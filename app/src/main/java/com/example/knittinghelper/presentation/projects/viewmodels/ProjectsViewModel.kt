@@ -61,6 +61,10 @@ class ProjectsViewModel @Inject constructor(
         }
     }
 
+    fun createUndo() {
+        _createProjectData.value = Response.Success(false)
+    }
+
     fun deleteProject(projectId: String) {
         if(userId != null) {
             viewModelScope.launch {

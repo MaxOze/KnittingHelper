@@ -57,17 +57,13 @@ class UserRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun subscribe(userId: String, subUserId: String): Flow<Response<Boolean>> = flow {
+    override fun subscribe(userId: String, userIds: List<String>, subUserId: String): Flow<Response<Boolean>> = flow {
         operationSuccessful = false
         try {
-            var subscribers: ArrayList<String> = arrayListOf()
+            val subs: ArrayList<String> = userIds as ArrayList<String>
+            subs.add(subUserId)
             firestore.collection(Constants.COLLECTION_NAME_USERS)
-                .document(userId).get().addOnSuccessListener {
-                    subscribers = it.data?.get("following") as ArrayList<String>
-                }
-            subscribers.add(subUserId)
-            firestore.collection(Constants.COLLECTION_NAME_USERS)
-                .document(userId).update("following", subscribers).addOnSuccessListener {
+                .document(userId).update("following", subs).addOnSuccessListener {
                     operationSuccessful = true
                 }.await()
             if (operationSuccessful) {
@@ -82,17 +78,13 @@ class UserRepositoryImpl @Inject constructor(
 
 
 
-    override fun unSubscribe(userId: String, subUserId: String): Flow<Response<Boolean>> = flow {
+    override fun unSubscribe(userId: String, userIds: List<String>, subUserId: String): Flow<Response<Boolean>> = flow {
         operationSuccessful = false
         try {
-            var subscribers: ArrayList<String> = arrayListOf()
+            val subs: ArrayList<String> = userIds as ArrayList<String>
+            subs.remove(subUserId)
             firestore.collection(Constants.COLLECTION_NAME_USERS)
-                .document(userId).get().addOnSuccessListener {
-                    subscribers = it.data?.get("following") as ArrayList<String>
-                }
-            subscribers.remove(subUserId)
-            firestore.collection(Constants.COLLECTION_NAME_USERS)
-                .document(userId).update("following", subscribers).addOnSuccessListener {
+                .document(userId).update("following", subs).addOnSuccessListener {
                     operationSuccessful = true
                 }.await()
             if (operationSuccessful) {
@@ -105,15 +97,10 @@ class UserRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun getUserSubscribers(userId: String): Flow<Response<List<User>>> = callbackFlow {
+    override fun getUserSubscribers(userIds: List<String>): Flow<Response<List<User>>> = callbackFlow {
         Response.Loading
-        var subscribers: List<String> = emptyList()
-        firestore.collection(Constants.COLLECTION_NAME_USERS)
-            .document(userId).get().addOnSuccessListener {
-                subscribers = it.data?.get("following") as List<String>
-            }
         val snapShotListener = firestore.collection(Constants.COLLECTION_NAME_USERS)
-            .whereIn("userId", subscribers)
+            .whereIn("userId", userIds)
             .orderBy("userName")
             .addSnapshotListener{ snapshot, error->
                 val response = if(snapshot!=null) {

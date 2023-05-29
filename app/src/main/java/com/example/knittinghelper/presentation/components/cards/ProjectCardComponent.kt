@@ -6,7 +6,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.outlined.DeleteOutline
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -21,10 +23,14 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.knittinghelper.R
 import com.example.knittinghelper.domain.model.Project
+import com.example.knittinghelper.presentation.components.util.ProgressBarComponent
+import com.example.knittinghelper.presentation.projects.viewmodels.PartViewModel
+import com.example.knittinghelper.presentation.projects.viewmodels.ProjectViewModel
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -98,29 +104,21 @@ fun ProjectCardComponent(delete: MutableState<String>, project: Project, navCont
                                 menu.value = false
                                 delete.value = project.projectId
                             },
-                            leadingIcon = { Icons.Outlined.DeleteOutline}
+                            leadingIcon = {
+                                Icon(
+                                    imageVector = Icons.Outlined.DeleteOutline,
+                                    contentDescription = "nav_icon",
+                                )
+                            }
                         )
                     }
                 }
             }
+            ProgressBarComponent(rows = project.countRows, neededRows = project.neededRows)
             Row(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = "Прогресс:",
-                    style = MaterialTheme.typography.titleMedium,
-                )
-                Spacer(modifier = Modifier.width(12.dp))
-                LinearProgressIndicator(
-                    progress = if (project.neededRows == 0) 0.0F else project.countRows / project.neededRows.toFloat(),
-                    trackColor = Color.Red,
-                    modifier = Modifier.weight(1f).padding(top = 3.dp)
-                )
-            }
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(12.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(12.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
@@ -148,6 +146,65 @@ fun ProjectCardComponent(pad: PaddingValues,  project: Project) {
         Column(
             modifier = Modifier.padding(
                 top = pad.calculateTopPadding() + 16.dp,
+                bottom = 4.dp
+            )
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                if (project.photoUri != "") {
+                    AsyncImage(
+                        model = project.photoUri,
+                        contentDescription = "image",
+                        modifier = Modifier
+                            .size(60.dp)
+                            .clip(CircleShape)
+                    )
+                } else {
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_launcher_background),
+                        contentDescription = "Project Image",
+                        modifier = Modifier
+                            .size(60.dp)
+                            .clip(CircleShape)
+                    )
+                }
+                Spacer(modifier = Modifier.width(20.dp))
+                Text(
+                    text = project.name,
+                    style = MaterialTheme.typography.titleLarge
+                )
+            }
+            ProgressBarComponent(rows = project.countRows, neededRows = project.neededRows)
+            Text(text = project.text, modifier = Modifier.padding(horizontal = 12.dp))
+            Divider(
+                thickness = 1.dp,
+                modifier = Modifier.padding(vertical = 12.dp, horizontal = 12.dp)
+            )
+        }
+    }
+}
+
+@Composable
+fun SimpleProjectCardComponent(pad: PaddingValues,  project: Project) {
+
+    val viewModel: ProjectViewModel = hiltViewModel()
+
+    val rows = remember { mutableStateOf<Int>(project.countRows) }
+    val minusState = remember { mutableStateOf(false) }
+    val plusState = remember { mutableStateOf(false) }
+
+    minusState.value = rows.value != 0
+    plusState.value = rows.value != project.neededRows
+
+    Card(
+        shape = RoundedCornerShape(16.dp),
+        modifier = Modifier
+    ) {
+        Column(
+            modifier = Modifier.padding(
+                top = pad.calculateTopPadding() + 16.dp,
                 start = 16.dp,
                 end = 16.dp,
                 bottom = 16.dp
@@ -159,18 +216,20 @@ fun ProjectCardComponent(pad: PaddingValues,  project: Project) {
             ) {
                 if (project.photoUri != "") {
                     AsyncImage(
+                        contentScale = ContentScale.Crop,
                         model = project.photoUri,
                         contentDescription = "image",
                         modifier = Modifier
-                            .size(48.dp)
+                            .size(60.dp)
                             .clip(CircleShape)
                     )
                 } else {
                     Image(
+                        contentScale = ContentScale.Crop,
                         painter = painterResource(id = R.drawable.ic_launcher_background),
                         contentDescription = "Project Image",
                         modifier = Modifier
-                            .size(48.dp)
+                            .size(60.dp)
                             .clip(CircleShape)
                     )
                 }
@@ -180,23 +239,57 @@ fun ProjectCardComponent(pad: PaddingValues,  project: Project) {
                     style = MaterialTheme.typography.titleLarge
                 )
             }
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(12.dp))
+            Divider(
+                thickness = 1.dp,
+                modifier = Modifier.padding(vertical = 12.dp)
+            )
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceAround
             ) {
+                FloatingActionButton(
+                    onClick = {
+                        if(minusState.value) {
+                            rows.value--
+                            viewModel.updateSimpleProject(rows.value)
+                        }
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Remove,
+                        contentDescription = "Localized description",
+                        modifier = Modifier.size(50.dp)
+                    )
+                }
                 Text(
-                    text = "Прогресс:",
-                    style = MaterialTheme.typography.titleMedium,
-                )
-                LinearProgressIndicator(
-                    progress = if (project.neededRows == 0) 0.0F else project.countRows / project.neededRows.toFloat(),
-                    trackColor = Color.Red,
-                    modifier = Modifier.padding(start = 20.dp, end = 10.dp)
-                )
+                    text = "${rows.value}/${project.neededRows}")
+                FloatingActionButton(
+                    onClick = {
+                        if(plusState.value) {
+                            rows.value++
+                            viewModel.updateSimpleProject(rows.value)
+                        }
+
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Add,
+                        contentDescription = "Localized description",
+                        modifier = Modifier.size(50.dp)
+                    )
+                }
             }
-            Spacer(modifier = Modifier.height(16.dp))
+            Divider(
+                thickness = 1.dp,
+                modifier = Modifier.padding(vertical = 12.dp)
+            )
             Text(text = project.text)
+            Divider(
+                thickness = 1.dp,
+                modifier = Modifier.padding(vertical = 12.dp)
+            )
         }
     }
 }

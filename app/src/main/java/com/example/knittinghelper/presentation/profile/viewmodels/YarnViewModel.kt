@@ -69,6 +69,10 @@ class YarnViewModel @Inject constructor(
         }
     }
 
+    fun updateOk() {
+        _updateYarnData.value = Response.Success(false)
+    }
+
     fun deleteYarn(yarnId: String) {
         if(userId != null) {
             viewModelScope.launch {
@@ -77,5 +81,9 @@ class YarnViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    fun deleteOk() {
+        _deleteYarnData.value = Response.Success(false)
     }
 }

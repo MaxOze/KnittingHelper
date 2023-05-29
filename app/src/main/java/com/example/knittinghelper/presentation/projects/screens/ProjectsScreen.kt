@@ -153,18 +153,19 @@ fun ProjectsScreen(navController: NavController)  {
                                         )
                                     }
                                 }
-
                             }
                         } else {
                             val projects = response.data
                             items(projects) { project ->
                                 ProjectCardComponent(delete, project, navController)
                             }
-                            item {
-                                Divider(
-                                    thickness = 0.dp,
-                                    modifier = Modifier.padding(top = 170.dp)
-                                )
+                            if (projects.size > 2) {
+                                item {
+                                    Divider(
+                                        thickness = 0.dp,
+                                        modifier = Modifier.padding(top = 170.dp)
+                                    )
+                                }
                             }
                         }
                     }

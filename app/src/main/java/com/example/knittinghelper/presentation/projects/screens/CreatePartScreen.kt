@@ -31,11 +31,11 @@ import com.example.knittinghelper.util.Response
 @Composable
 fun CreatePartScreen(navController: NavController) {
     val viewModel: ProjectViewModel = hiltViewModel()
+
     LaunchedEffect(key1 = true) {
         viewModel.getProjectInfo()
     }
 
-    var project: Project? = null
     val response = viewModel.getProjectData.value
 
     val name = remember { mutableStateOf("") }
@@ -69,178 +69,234 @@ fun CreatePartScreen(navController: NavController) {
             BottomNavigationMenu(navController = navController)
         }
     ) {
-        if (buttonState.value) {
-            when (createResponse) {
-                is Response.Loading -> {
-                    AlertDialog(
-                        onDismissRequest = { }
+        when (response) {
+            is Response.Loading -> {
+                AlertDialog(
+                    onDismissRequest = { }
+                ) {
+                    Surface(
+                        modifier = Modifier
+                            .wrapContentWidth()
+                            .wrapContentHeight(),
+                        shape = MaterialTheme.shapes.large,
+                        tonalElevation = AlertDialogDefaults.TonalElevation
                     ) {
-                        Surface(
-                            modifier = Modifier
-                                .wrapContentWidth()
-                                .wrapContentHeight(),
-                            shape = MaterialTheme.shapes.large,
-                            tonalElevation = AlertDialogDefaults.TonalElevation
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceAround
                         ) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.SpaceAround
-                            ) {
-                                Text(text = "Создание части...")
-                                CircularProgressIndicator(
-                                    modifier = Modifier.size(16.dp),
-                                    color = MaterialTheme.colorScheme.onSurface
-                                )
-                            }
+                            Text(text = "Загрузка...")
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(16.dp),
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
                         }
                     }
                 }
+            }
 
-                is Response.Success -> {
-                    if (createResponse.data) {
-                        LaunchedEffect(key1 = true) {
-                            navController.popBackStack()
-                        }
-                        AlertDialog(
-                            onDismissRequest = { }
-                        ) {
-                            Surface(
-                                modifier = Modifier
-                                    .wrapContentWidth()
-                                    .wrapContentHeight(),
-                                shape = MaterialTheme.shapes.large,
-                                tonalElevation = AlertDialogDefaults.TonalElevation
-                            ) {
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.SpaceAround
+            is Response.Success -> {
+                if (response.data != null) {
+                    if (buttonState.value) {
+                        when (createResponse) {
+                            is Response.Loading -> {
+                                AlertDialog(
+                                    onDismissRequest = { }
                                 ) {
-                                    Text(text = "Создание части...")
-                                    CircularProgressIndicator(
-                                        modifier = Modifier.size(16.dp),
-                                        color = MaterialTheme.colorScheme.onSurface
-                                    )
+                                    Surface(
+                                        modifier = Modifier
+                                            .wrapContentWidth()
+                                            .wrapContentHeight(),
+                                        shape = MaterialTheme.shapes.large,
+                                        tonalElevation = AlertDialogDefaults.TonalElevation
+                                    ) {
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            horizontalArrangement = Arrangement.SpaceAround
+                                        ) {
+                                            Text(text = "Создание части...")
+                                            CircularProgressIndicator(
+                                                modifier = Modifier.size(16.dp),
+                                                color = MaterialTheme.colorScheme.onSurface
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+
+                            is Response.Success -> {
+                                if (createResponse.data) {
+                                    LaunchedEffect(key1 = true) {
+                                        navController.popBackStack()
+                                    }
+                                    AlertDialog(
+                                        onDismissRequest = { }
+                                    ) {
+                                        Surface(
+                                            modifier = Modifier
+                                                .wrapContentWidth()
+                                                .wrapContentHeight(),
+                                            shape = MaterialTheme.shapes.large,
+                                            tonalElevation = AlertDialogDefaults.TonalElevation
+                                        ) {
+                                            Row(
+                                                modifier = Modifier.fillMaxWidth(),
+                                                verticalAlignment = Alignment.CenterVertically,
+                                                horizontalArrangement = Arrangement.SpaceAround
+                                            ) {
+                                                Text(text = "Создание части...")
+                                                CircularProgressIndicator(
+                                                    modifier = Modifier.size(16.dp),
+                                                    color = MaterialTheme.colorScheme.onSurface
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                            is Response.Error -> {
+                                AlertDialog(
+                                    onDismissRequest = { }
+                                ) {
+                                    Surface(
+                                        modifier = Modifier
+                                            .wrapContentWidth()
+                                            .wrapContentHeight(),
+                                        shape = MaterialTheme.shapes.large,
+                                        tonalElevation = AlertDialogDefaults.TonalElevation
+                                    ) {
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            horizontalArrangement = Arrangement.SpaceAround
+                                        ) {
+                                            Text(text = "Не удалось создать часть!")
+                                        }
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            horizontalArrangement = Arrangement.End
+                                        ) {
+                                            TextButton(onClick = { viewModel.createUndo() }) {
+                                                Text(text = "Ok")
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
                     }
-                }
-
-                is Response.Error -> {
-                    AlertDialog(
-                        onDismissRequest = { }
+                    Column(
+                        modifier = Modifier
+                            .verticalScroll(rememberScrollState())
+                            .padding(
+                                top = it.calculateTopPadding(),
+                                start = 16.dp,
+                                end = 16.dp
+                            ),
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Surface(
+                        TextField(
+                            value = name.value,
+                            onValueChange = { if (it.length <= 20) name.value = it },
+                            supportingText = {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween
+                                ) {
+                                    Row {
+                                        if (nameError.value) Icon(
+                                            imageVector = Icons.Outlined.Error,
+                                            contentDescription = "error",
+                                            modifier = Modifier.size(20.dp)
+                                        )
+                                        Text(text = "*обязательное поле")
+                                    }
+                                    Text(text = "${name.value.length}/20")
+                                }
+                            },
+                            label = { Text(text = "Название части") },
+                            isError = nameError.value,
+                            singleLine = true,
                             modifier = Modifier
-                                .wrapContentWidth()
-                                .wrapContentHeight(),
-                            shape = MaterialTheme.shapes.large,
-                            tonalElevation = AlertDialogDefaults.TonalElevation
+                                .fillMaxWidth()
+                                .padding(top = 10.dp)
+                        )
+                        ChooseNeedleComponent(selectedText = needle)
+                        TextField(
+                            value = text.value,
+                            onValueChange = { text.value = it },
+                            label = { Text(text = "Описание части") },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        AddPhotoComponent(imageUri)
+                        TextField(
+                            value = neededRows.value,
+                            onValueChange = {
+                                try {
+                                    if (it.toInt() > 0) neededRows.value = it else "1"
+                                } catch (e: Exception) {
+                                    "1"
+                                }
+                            },
+                            supportingText = { Text(text = "*обязательное поле") },
+                            label = { Text(text = "Количество рядов") },
+                            modifier = Modifier.fillMaxWidth(),
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                        )
+                        Button(
+                            onClick = {
+                                nameError.value = name.value.isEmpty()
+
+                                if (!nameError.value) {
+                                    viewModel.createPart(
+                                        name = name.value,
+                                        text = text.value,
+                                        photoUri = imageUri.value,
+                                        needle = needle.value,
+                                        neededRow = neededRows.value.toInt(),
+                                        projectRows = response.data.neededRows)
+
+                                    buttonState.value = true
+                                } else buttonState.value = false
+                            },
+                            modifier = Modifier
+                                .padding(top = 16.dp, bottom = 40.dp)
+                                .fillMaxWidth()
                         ) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.SpaceAround
-                            ) {
-                                Text(text = "Не удалось создать часть!")
-                            }
+                            Text(text = "Создать часть")
+                        }
+                        Divider(
+                            modifier = Modifier
+                                .padding(bottom = 40.dp)
+                        )
+                    }
+                }
+            }
+
+            is Response.Error -> {
+                AlertDialog(
+                    onDismissRequest = { }
+                ) {
+                    Surface(
+                        modifier = Modifier
+                            .wrapContentWidth()
+                            .wrapContentHeight(),
+                        shape = MaterialTheme.shapes.large,
+                        tonalElevation = AlertDialogDefaults.TonalElevation
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceAround
+                        ) {
+                            Text(text = response.message)
                         }
                     }
                 }
             }
-        }
-        Column(
-            modifier = Modifier
-                .verticalScroll(rememberScrollState())
-                .padding(
-                    top = it.calculateTopPadding(),
-                    start = 16.dp,
-                    end = 16.dp
-                ),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            TextField(
-                value = name.value,
-                onValueChange = { if (it.length <= 20) name.value = it },
-                supportingText = {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Row {
-                            if (nameError.value) Icon(
-                                imageVector = Icons.Outlined.Error,
-                                contentDescription = "error",
-                                modifier = Modifier.size(20.dp)
-                            )
-                            Text(text = "*обязательное поле")
-                        }
-                        Text(text = "${name.value.length}/20")
-                    }
-                },
-                label = { Text(text = "Название части") },
-                isError = nameError.value,
-                singleLine = true,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 10.dp)
-            )
-            ChooseNeedleComponent(selectedText = needle)
-            TextField(
-                value = text.value,
-                onValueChange = { text.value = it },
-                label = { Text(text = "Описание части") },
-                modifier = Modifier.fillMaxWidth()
-            )
-            AddPhotoComponent(imageUri)
-            TextField(
-                value = neededRows.value,
-                onValueChange = {
-                    try {
-                        if (it.toInt() > 0) neededRows.value = it else "1"
-                    } catch (e: Exception) {
-                        "1"
-                    }
-                },
-                supportingText = { Text(text = "*обязательное поле") },
-                label = { Text(text = "Количество рядов") },
-                modifier = Modifier.fillMaxWidth(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
-            )
-            Button(
-                onClick = {
-                    nameError.value = name.value.isEmpty()
-
-                    if (!nameError.value) {
-                        if (response is Response.Success) {
-                            if (response.data != null) {
-                                project = response.data
-                            }
-                        }
-
-                        project?.let { it1 ->
-                            viewModel.createPart(
-                                name = name.value,
-                                text = text.value,
-                                photoUri = imageUri.value,
-                                needle = needle.value,
-                                neededRow = neededRows.value.toInt(),
-                                projectRows = it1.neededRows
-                            )
-                        }
-                        buttonState.value = true
-                    } else buttonState.value = false
-                },
-                modifier = Modifier
-                    .padding(top = 16.dp, bottom = 40.dp)
-                    .fillMaxWidth()
-            ) {
-                Text(text = "Создать проект")
-            }
-            Divider(modifier = Modifier
-                .padding(bottom = 40.dp))
         }
     }
 }
