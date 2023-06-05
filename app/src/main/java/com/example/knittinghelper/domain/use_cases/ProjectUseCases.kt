@@ -73,9 +73,10 @@ class CreatePart @Inject constructor(
         text: String,
         needle: String,
         photoUri: Uri?,
+        schemeUri: List<Uri?>,
         neededRow: Int,
         projectNeededRows: Int
-    ) = repository.createPart(projectId, name, text, needle, photoUri, neededRow, projectNeededRows)
+    ) = repository.createPart(projectId, name, text, needle, photoUri, schemeUri, neededRow, projectNeededRows)
 }
 
 class UpdateSimpleProject @Inject constructor(

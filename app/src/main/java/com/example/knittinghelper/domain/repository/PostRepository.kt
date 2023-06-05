@@ -15,5 +15,5 @@ interface PostRepository {
         text: String,
         needle: String): Flow<Response<Boolean>>
     fun deletePost(postId: String): Flow<Response<Boolean>>
-    fun getPostsFeed(userId: String, count: Int): Flow<Response<List<Post>>>
+    fun getPostsFeed(userIds: List<String>, count: Long): Flow<Response<List<Post>>>
 }

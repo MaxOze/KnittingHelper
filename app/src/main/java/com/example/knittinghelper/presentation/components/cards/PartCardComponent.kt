@@ -60,7 +60,7 @@ fun PartCardComponent(delete: MutableState<Part?>, count: Int, part: Part, navCo
                         )
                     } else {
                         Image(
-                            painter = painterResource(id = R.drawable.ic_launcher_background),
+                            painter = painterResource(id = R.drawable.photo),
                             contentDescription = "Project Image",
                             contentScale = ContentScale.Crop,
                             modifier = Modifier
@@ -71,7 +71,7 @@ fun PartCardComponent(delete: MutableState<Part?>, count: Int, part: Part, navCo
                     Spacer(modifier = Modifier.width(20.dp))
                     Text(
                         text = part.name,
-                        style = MaterialTheme.typography.titleLarge
+                        style = MaterialTheme.typography.titleMedium
                     )
                 }
                 Box {

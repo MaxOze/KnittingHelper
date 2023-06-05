@@ -16,14 +16,18 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AlertDialogDefaults
+import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -44,16 +48,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.knittinghelper.presentation.Screens
-import com.example.knittinghelper.presentation.components.cards.ProjectCardComponent
 import com.example.knittinghelper.presentation.components.cards.YarnCardComponent
 import com.example.knittinghelper.presentation.navigation.BottomNavigationMenu
-import com.example.knittinghelper.presentation.profile.viewmodels.NeedleViewModel
 import com.example.knittinghelper.presentation.profile.viewmodels.YarnViewModel
-import com.example.knittinghelper.presentation.projects.viewmodels.ProjectsViewModel
 import com.example.knittinghelper.util.Response
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -72,6 +74,8 @@ fun YarnStockScreen(navController: NavController) {
     val updateSuccess =  remember { mutableStateOf<Int>(0) }
     val delete =  remember { mutableStateOf("") }
     val deleteSuccess =  remember { mutableStateOf<Int>(0) }
+    val search =  remember { mutableStateOf("") }
+    val searchBool =  remember { mutableStateOf(false) }
 
     val viewModel: YarnViewModel = hiltViewModel()
 
@@ -86,6 +90,14 @@ fun YarnStockScreen(navController: NavController) {
             TopAppBar(
                 scrollBehavior = scrollBehavior,
                 title = { Text("Склад пряжи") },
+                navigationIcon = {
+                    IconButton(onClick = { navController.popBackStack() }) {
+                        Icon(
+                            imageVector = Icons.Filled.ArrowBack,
+                            contentDescription = "backToProfile"
+                        )
+                    }
+                },
                 colors = TopAppBarDefaults.smallTopAppBarColors(
                     containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp)
                 )
@@ -156,18 +168,18 @@ fun YarnStockScreen(navController: NavController) {
                                     ) {
                                         TextButton(
                                             onClick = {
+                                                update.value = ""
+                                            },
+                                        ) {
+                                            Text("Отмена")
+                                        }
+                                        TextButton(
+                                            onClick = {
                                                 viewModel.updateYarn(strs[0], text.value, -1)
                                                 update.value = ""
                                             },
                                         ) {
                                             Text("Изменить")
-                                        }
-                                        TextButton(
-                                            onClick = {
-                                                update.value = ""
-                                            },
-                                        ) {
-                                            Text("Отмена")
                                         }
                                     }
                                 }
@@ -235,19 +247,59 @@ fun YarnStockScreen(navController: NavController) {
                                         .padding(top = 50.dp)
                                         .fillMaxWidth()
                                 ) {
-                                    TextButton(onClick = { navController.navigate(Screens.CreateProjectScreen.route) }) {
+                                    TextButton(onClick = { navController.navigate(Screens.CreateYarnScreen.route) }) {
                                         Text(
                                             text = "Добавьте сюда свою пряжу\n" +
                                                     "чтобы за ней было удобно следить!",
-                                            style = MaterialTheme.typography.titleLarge
+                                            style = MaterialTheme.typography.titleLarge,
+                                            textAlign = TextAlign.Center
                                         )
                                     }
                                 }
                             }
                         } else {
                             val yarns = response.data
+                            item {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 5.dp, horizontal = 12.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.SpaceBetween
+                                ) {
+                                    OutlinedTextField(
+                                        label = {
+                                            Text(text = "Поиск")
+                                        },
+                                        modifier = Modifier.weight(8f),
+                                        value = search.value,
+                                        onValueChange = {
+                                            search.value = it
+                                            searchBool.value = false
+                                        },
+                                        leadingIcon = {
+                                            Icon(Icons.Outlined.Search, "")
+                                        },
+                                    )
+                                    Spacer(modifier = Modifier.weight(0.5f),)
+                                    Button(
+                                        modifier = Modifier.weight(3f),
+                                        onClick = { searchBool.value = true }) {
+                                        Text(text = "Найти")
+                                    }
+                                }
+                            }
                             items(yarns) { yarn ->
-                                YarnCardComponent(yarn, delete, update, viewModel)
+                                if (searchBool.value) {
+                                    if (search.value in yarn.material ||
+                                        search.value in yarn.color ||
+                                        search.value in yarn.text ||
+                                        search.value in yarn.weight.toString() ||
+                                        search.value in yarn.length.toString())
+                                        YarnCardComponent(yarn, delete, update, viewModel)
+                                } else {
+                                    YarnCardComponent(yarn, delete, update, viewModel)
+                                }
                             }
                             if (yarns.size > 2) {
                                 item {

@@ -21,6 +21,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.knittinghelper.domain.model.Project
 import com.example.knittinghelper.presentation.components.util.AddPhotoComponent
+import com.example.knittinghelper.presentation.components.util.AddPhotosComponent
 import com.example.knittinghelper.presentation.components.util.ChooseNeedleComponent
 import com.example.knittinghelper.presentation.navigation.BottomNavigationMenu
 import com.example.knittinghelper.presentation.projects.viewmodels.ProjectViewModel
@@ -45,6 +46,7 @@ fun CreatePartScreen(navController: NavController) {
     val neededRows = remember { mutableStateOf("1") }
     val nameError = remember { mutableStateOf<Boolean>(false) }
     val buttonState = remember { mutableStateOf(false) }
+    val photos = remember { mutableStateOf<List<Uri?>>(emptyList()) }
 
     val createResponse = viewModel.createPartData.value
 
@@ -232,6 +234,7 @@ fun CreatePartScreen(navController: NavController) {
                             modifier = Modifier.fillMaxWidth()
                         )
                         AddPhotoComponent(imageUri)
+                        AddPhotosComponent(selectedPhotos = photos)
                         TextField(
                             value = neededRows.value,
                             onValueChange = {
@@ -255,6 +258,7 @@ fun CreatePartScreen(navController: NavController) {
                                         name = name.value,
                                         text = text.value,
                                         photoUri = imageUri.value,
+                                        schemeUri = photos.value,
                                         needle = needle.value,
                                         neededRow = neededRows.value.toInt(),
                                         projectRows = response.data.neededRows)

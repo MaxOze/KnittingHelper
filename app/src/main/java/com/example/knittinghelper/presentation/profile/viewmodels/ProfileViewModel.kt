@@ -50,12 +50,12 @@ class ProfileViewModel @Inject constructor(
         }
     }
 
-    fun setUserInfo(userName: String, bio: String) {
+    fun setUserInfo(photo: Uri?, bio: String) {
         if(userId != null) {
             viewModelScope.launch {
                 userUseCases.setUserDetails(
                     userId = userId,
-                    userName = userName,
+                    photoUri = photo,
                     bio = bio
                 ).collect() {
                     _setUserData.value = it

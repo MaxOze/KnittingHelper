@@ -22,6 +22,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.surfaceColorAtElevation
@@ -32,6 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.example.knittinghelper.presentation.Screens
 import com.example.knittinghelper.presentation.components.cards.SubCardComponent
 import com.example.knittinghelper.presentation.navigation.BottomNavigationMenu
 import com.example.knittinghelper.presentation.profile.viewmodels.SubsViewModel
@@ -84,7 +86,8 @@ fun SubsScreen(navController: NavController) {
                 if (response.data != null) {
                     val user = response.data
                     LaunchedEffect(key1 = true) {
-                        viewModel.getUserSubs(user.following)
+                        if (user.following.isNotEmpty())
+                            viewModel.getUserSubs(user.following)
                     }
                     when (val subsResponse = viewModel.getUserSubsData.value) {
                         is Response.Loading -> {
@@ -101,35 +104,42 @@ fun SubsScreen(navController: NavController) {
                         is Response.Success -> {
                             if (subsResponse.data != null) {
                                 val subs = subsResponse.data
-                                if (subs.isEmpty()) {
-                                    Row(
-                                        modifier = Modifier.padding(top = 100.dp),
-                                        horizontalArrangement = Arrangement.Center
-                                    ) {
-                                        Text(text = "Найдите друзей!")
+                                LazyColumn(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(
+                                            top = it.calculateTopPadding() + 10.dp,
+                                            start = 12.dp, end = 12.dp
+                                        ),
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    items(subs) { sub ->
+                                        SubCardComponent(user, sub, viewModel, navController)
+                                        Divider(
+                                            thickness = 1.dp,
+                                            modifier = Modifier.padding(vertical = 10.dp)
+                                        )
                                     }
-                                } else {
-                                    LazyColumn(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(
-                                                top = it.calculateTopPadding() + 10.dp,
-                                                start = 12.dp, end = 12.dp
-                                            ),
-                                        horizontalAlignment = Alignment.CenterHorizontally
-                                    ) {
-                                        items(subs) {sub ->
-                                            SubCardComponent(user, sub, viewModel)
-                                            Divider(thickness = 1.dp, modifier = Modifier.padding(vertical = 10.dp))
+                                    if (subs.size > 7) {
+                                        item {
+                                            Divider(
+                                                thickness = 0.dp,
+                                                modifier = Modifier.padding(top = 70.dp)
+                                            )
                                         }
-                                        if (subs.size > 7) {
-                                            item {
-                                                Divider(
-                                                    thickness = 0.dp,
-                                                    modifier = Modifier.padding(top = 70.dp)
-                                                )
-                                            }
-                                        }
+                                    }
+                                }
+                            }
+                            if (subsResponse.data == null && user.following.isEmpty()) {
+                                Row(
+                                    modifier = Modifier.padding(top = 100.dp).fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.Center
+                                ) {
+                                    TextButton(onClick = { navController.navigate("social_graph") }) {
+                                        Text(
+                                            text = "Найдите новых друзей!",
+                                            style = MaterialTheme.typography.titleLarge
+                                        )
                                     }
                                 }
                             }

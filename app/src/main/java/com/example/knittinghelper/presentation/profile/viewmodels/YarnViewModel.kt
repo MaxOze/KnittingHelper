@@ -59,6 +59,10 @@ class YarnViewModel @Inject constructor(
         }
     }
 
+    fun createUndo() {
+        _createYarnData.value = Response.Success(false)
+    }
+
     fun updateYarn(yarnId: String, text: String, count: Int) {
         if(userId != null) {
             viewModelScope.launch {

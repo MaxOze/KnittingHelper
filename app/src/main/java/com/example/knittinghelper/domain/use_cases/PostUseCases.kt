@@ -39,5 +39,5 @@ class DeletePost @Inject constructor(
 class GetPostsFeed @Inject constructor(
     private val repository: PostRepository
 ) {
-    operator fun invoke(userId: String, count: Int) = repository.getPostsFeed(userId, count)
+    operator fun invoke(userIds: List<String>, count: Long) = repository.getPostsFeed(userIds, count)
 }

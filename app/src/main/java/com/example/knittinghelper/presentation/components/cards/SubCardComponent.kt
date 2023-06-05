@@ -2,6 +2,7 @@ package com.example.knittinghelper.presentation.components.cards
 
 import android.graphics.Paint.Style
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -22,6 +23,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.knittinghelper.R
 import com.example.knittinghelper.domain.model.User
@@ -29,14 +31,24 @@ import com.example.knittinghelper.presentation.profile.viewmodels.SubsViewModel
 
 
 @Composable
-fun SubCardComponent(user: User, subUser: User, viewModel: SubsViewModel) {
+fun SubCardComponent(user: User, subUser: User, viewModel: SubsViewModel, navController: NavController) {
     val sub = remember { mutableStateOf(true) }
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.clickable(
+                onClick = {
+                    if (user.following.contains(subUser.userId))
+                        navController.navigate("profile/subs/${subUser.userId}/true")
+                    else
+                        navController.navigate("profile/subs/${subUser.userId}/false")
+                }
+            )
+        ) {
             if(subUser.imageUri != "") {
                 AsyncImage(
                     model = subUser.imageUri,
@@ -48,7 +60,7 @@ fun SubCardComponent(user: User, subUser: User, viewModel: SubsViewModel) {
                 )
             } else {
                 Image(
-                    painter = painterResource(id = R.drawable.ic_launcher_background),
+                    painter = painterResource(id = R.drawable.photo),
                     contentDescription = "Project Image",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
@@ -62,7 +74,7 @@ fun SubCardComponent(user: User, subUser: User, viewModel: SubsViewModel) {
         if (sub.value) {
             Button(
                 onClick = {
-                    viewModel.unsubscribe(subUser.userId, user.following)
+                    viewModel.unsubscribe(subUser.userId)
                     sub.value = !sub.value
                 }
             ) {
@@ -71,7 +83,7 @@ fun SubCardComponent(user: User, subUser: User, viewModel: SubsViewModel) {
         } else {
             FilledTonalButton(
                 onClick = {
-                    viewModel.subscribe(subUser.userId, user.following)
+                    viewModel.subscribe(subUser.userId)
                     sub.value = !sub.value
                 }
             ) {

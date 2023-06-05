@@ -176,7 +176,6 @@ fun ProjectScreen(navController: NavController) {
                                             }) {
                                                 Text(
                                                     text = "Добавьте новые части!",
-                                                    color = Color.Blue,
                                                     style = MaterialTheme.typography.titleLarge
                                                 )
                                             }

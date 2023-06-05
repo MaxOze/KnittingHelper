@@ -43,6 +43,7 @@ interface ProjectRepository {
         text: String,
         needle: String,
         photoUri: Uri?,
+        schemeUri: List<Uri?>,
         neededRow: Int,
         projectNeededRows: Int): Flow<Response<Boolean>>
 

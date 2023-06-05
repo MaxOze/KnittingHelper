@@ -62,6 +62,7 @@ class ProjectViewModel @Inject constructor(
         text: String,
         needle: String,
         photoUri: Uri?,
+        schemeUri: List<Uri?>,
         neededRow: Int,
         projectRows: Int
     ) {
@@ -73,6 +74,7 @@ class ProjectViewModel @Inject constructor(
                     text,
                     needle,
                     photoUri,
+                    schemeUri,
                     neededRow,
                     projectRows
                 ).collect {

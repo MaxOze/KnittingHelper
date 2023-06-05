@@ -2,6 +2,7 @@ package com.example.knittinghelper.data
 
 import android.net.Uri
 import com.example.knittinghelper.domain.model.Post
+import com.example.knittinghelper.domain.model.User
 import com.example.knittinghelper.domain.model.Yarn
 import com.example.knittinghelper.domain.repository.PostRepository
 import com.example.knittinghelper.util.Constants
@@ -105,7 +106,24 @@ class PostRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun getPostsFeed(userId: String, count: Int): Flow<Response<List<Post>>> {
-        TODO("Not yet implemented")
+    override fun getPostsFeed(userIds: List<String>, count: Long): Flow<Response<List<Post>>> = callbackFlow{
+        Response.Loading
+
+        val snapShotListener2 = firestore.collection(Constants.COLLECTION_NAME_POSTS)
+            .whereIn("userId", userIds)
+            .orderBy("postDate", Query.Direction.DESCENDING)
+            .limit(20*count)
+            .addSnapshotListener { snapshot, error ->
+                val response = if(snapshot!=null) {
+                    val posts = snapshot.toObjects(Post::class.java)
+                    Response.Success(posts)
+                } else {
+                    Response.Error(error?.message?:error.toString())
+                }
+                trySend(response).isSuccess
+            }
+        awaitClose {
+            snapShotListener2.remove()
+        }
     }
 }

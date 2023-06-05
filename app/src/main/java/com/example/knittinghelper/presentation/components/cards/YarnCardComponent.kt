@@ -74,7 +74,7 @@ fun YarnCardComponent(yarn: Yarn, delete: MutableState<String>, update: MutableS
                         )
                     } else {
                     Image(
-                        painter = painterResource(id = R.drawable.ic_launcher_background),
+                        painter = painterResource(id = R.drawable.photo),
                         contentDescription = "Project Image",
                         modifier = Modifier
                             .size(50.dp)
@@ -154,7 +154,7 @@ fun YarnCardComponent(yarn: Yarn, delete: MutableState<String>, update: MutableS
                     }
                 }
             }
-            Divider(thickness = 1.dp, modifier = Modifier.padding(horizontal = 12.dp))
+            Divider(thickness = 2.dp, modifier = Modifier.padding(horizontal = 12.dp))
             Text(
                 text = "Материал: ${yarn.material}",
                 style = MaterialTheme.typography.bodyMedium,
@@ -170,10 +170,10 @@ fun YarnCardComponent(yarn: Yarn, delete: MutableState<String>, update: MutableS
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.padding(bottom = 12.dp, start = 12.dp)
             )
-            Divider(thickness = 1.dp, modifier = Modifier.padding(horizontal = 12.dp))
+            Divider(thickness = 2.dp, modifier = Modifier.padding(horizontal = 12.dp))
             Text(
                 text = yarn.text,
-                style = MaterialTheme.typography.bodyMedium,
+                style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier.padding(12.dp)
             )
         }

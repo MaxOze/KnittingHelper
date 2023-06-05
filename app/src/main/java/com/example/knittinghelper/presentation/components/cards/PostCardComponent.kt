@@ -39,12 +39,15 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.knittinghelper.R
 import com.example.knittinghelper.domain.model.Post
+import com.example.knittinghelper.domain.model.User
+import com.example.knittinghelper.presentation.components.util.PhotoCards
+import com.example.knittinghelper.util.Needles
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
 @Composable
-fun PostCardComponent(post: Post, navController: NavController) {
+fun PostCardComponent(post: Post, navController: NavController, user: Boolean, userInfo: User) {
     val menu = remember { mutableStateOf(false) }
 
     val date = Date(post.postDate.seconds * 1000L)
@@ -68,11 +71,16 @@ fun PostCardComponent(post: Post, navController: NavController) {
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.clickable(
                         onClick = {
-                            TODO("переход на профиль автора")
+                            if (!user) {
+                                if (userInfo.following.contains(post.userId))
+                                    navController.navigate("social/${post.userId}/true")
+                                else
+                                    navController.navigate("social/${post.userId}/false")
+                            }
                         }
                     )
                 ) {
-                    if(post.userPhotoUri != "") {
+                    if (post.userPhotoUri != "") {
                         AsyncImage(
                             model = post.userPhotoUri,
                             contentDescription = "image",
@@ -83,7 +91,7 @@ fun PostCardComponent(post: Post, navController: NavController) {
                         )
                     } else {
                         Image(
-                            painter = painterResource(id = R.drawable.ic_launcher_background),
+                            painter = painterResource(id = R.drawable.photo),
                             contentDescription = "Project Image",
                             contentScale = ContentScale.Crop,
                             modifier = Modifier
@@ -97,60 +105,54 @@ fun PostCardComponent(post: Post, navController: NavController) {
                         style = MaterialTheme.typography.titleLarge
                     )
                 }
-                Box {
-                    IconButton(onClick = {
-                        menu.value = !menu.value
-                    }) {
-                        Icon(Icons.Filled.MoreVert, contentDescription = "Localized description")
-                    }
-                    DropdownMenu(
-                        expanded = menu.value,
-                        onDismissRequest = {
-                            menu.value = false
-                        },
-                    ) {
-                        DropdownMenuItem(
-                            text = { Text(text = "Удалить проект") },
-                            onClick = {
+                if (user) {
+                    Box {
+                        IconButton(onClick = {
+                            menu.value = !menu.value
+                        }) {
+                            Icon(
+                                Icons.Filled.MoreVert,
+                                contentDescription = "Localized description"
+                            )
+                        }
+                        DropdownMenu(
+                            expanded = menu.value,
+                            onDismissRequest = {
                                 menu.value = false
-//                                delete.value = part
                             },
-                            leadingIcon = {
-                                Icon(
-                                    imageVector = Icons.Outlined.DeleteOutline,
-                                    contentDescription = "nav_icon",
-                                )
-                            }
-                        )
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text(text = "Удалить проект") },
+                                onClick = {
+                                    menu.value = false
+//                                delete.value = part
+                                },
+                                leadingIcon = {
+                                    Icon(
+                                        imageVector = Icons.Outlined.DeleteOutline,
+                                        contentDescription = "nav_icon",
+                                    )
+                                }
+                            )
+                        }
                     }
                 }
             }
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(90.dp).padding(vertical = 10.dp),
-                horizontalArrangement = Arrangement.SpaceAround,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                post.photoUris.forEach {
-                    AsyncImage(
-                        model = it,
-                        contentDescription = "image",
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier
-                            .size(90.dp)
-                    )
-                }
-            }
+            PhotoCards(post.photoUris)
             Text(text = post.text, modifier = Modifier.padding(bottom = 10.dp))
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().padding(bottom = 10.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                IconButton(onClick = { /*TODO*/ }) {
-                    Icon(imageVector = Icons.Outlined.FavoriteBorder, contentDescription = "kek")
-                }
+                AsyncImage(
+                    model = Needles.chooseNeedle(post.needle).icon,
+                    contentDescription = "image",
+                    modifier = Modifier
+                        .size(30.dp)
+                        .clip(CircleShape),
+                    contentScale = ContentScale.Crop
+                )
                 Text(text = dateString, style = MaterialTheme.typography.bodyLarge)
             }
         }

@@ -18,6 +18,7 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.knittinghelper.R
 import com.example.knittinghelper.presentation.Screens
+import com.example.knittinghelper.presentation.social.viewmodels.UserProfileViewModel
 
 
 @Composable
@@ -26,7 +27,6 @@ fun MyProfile(userName: String, bio: String, photoUri: String, paddingValues: Pa
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = { if (bio != "") expanded.value = !expanded.value }),
     ) {
         Column(
             modifier = Modifier.padding(
@@ -36,7 +36,6 @@ fun MyProfile(userName: String, bio: String, photoUri: String, paddingValues: Pa
                 bottom = 12.dp
             )
         ) {
-            if (!expanded.value) {
                 Row{
                     if (photoUri != "") {
                         AsyncImage(
@@ -49,7 +48,7 @@ fun MyProfile(userName: String, bio: String, photoUri: String, paddingValues: Pa
                         )
                     } else {
                         Image(
-                            painter = painterResource(id = R.drawable.ic_launcher_background),
+                            painter = painterResource(id = R.drawable.photo),
                             contentDescription = "Project Image",
                             contentScale = ContentScale.Crop,
                             modifier = Modifier
@@ -69,13 +68,11 @@ fun MyProfile(userName: String, bio: String, photoUri: String, paddingValues: Pa
                     if (bio == "") {
                         Text(
                             text = "Добавьте описание к своему профилю в настройках!",
-                            maxLines = 2,
                             style = MaterialTheme.typography.bodyLarge
                         )
                     } else {
                         Text(
                             text = bio,
-                            maxLines = 2,
                             style = MaterialTheme.typography.bodyLarge
                         )
                     }
@@ -106,20 +103,93 @@ fun MyProfile(userName: String, bio: String, photoUri: String, paddingValues: Pa
                         }
                     }
                 }
-            } else {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Text(
-                        text = userName,
-                        style = MaterialTheme.typography.headlineMedium,
-                        modifier = Modifier.align(Alignment.CenterHorizontally)
+        }
+    }
+}
+
+@Composable
+fun Profile(userId: String, userName: String, bio: String, photoUri: String, paddingValues: PaddingValues, viewModel: UserProfileViewModel)  {
+    val isSub = remember { mutableStateOf(viewModel.isSub) }
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+    ) {
+        Column(
+            modifier = Modifier.padding(
+                top = paddingValues.calculateTopPadding() + 12.dp,
+                start = 12.dp,
+                end = 12.dp,
+                bottom = 12.dp
+            )
+        ) {
+            Row {
+                if (photoUri != "") {
+                    AsyncImage(
+                        model = photoUri,
+                        contentDescription = "image",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .size(60.dp)
+                            .clip(CircleShape)
                     )
-                    Divider(
-                        modifier = Modifier.padding(8.dp)
+                } else {
+                    Image(
+                        painter = painterResource(id = R.drawable.photo),
+                        contentDescription = "Project Image",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .size(60.dp)
+                            .clip(CircleShape)
                     )
+                }
+                Spacer(modifier = Modifier.width(16.dp))
+                Text(
+                    text = userName,
+                    style = MaterialTheme.typography.headlineMedium,
+                    modifier = Modifier.align(Alignment.CenterVertically)
+                )
+            }
+            Column() {
+                Divider(thickness = 1.dp, modifier = Modifier.padding(vertical = 8.dp))
+                if (bio == "") {
                     Text(
-                        text = bio,
+                        text = "Добавьте описание к своему профилю в настройках!",
+                        maxLines = 2,
                         style = MaterialTheme.typography.bodyLarge
                     )
+                } else {
+                    Text(
+                        text = bio,
+                        maxLines = 2,
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                }
+                Divider(thickness = 1.dp, modifier = Modifier.padding(vertical = 8.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    if (isSub.value == "true") {
+                        FilledTonalButton(
+                            modifier = Modifier.fillMaxWidth(),
+                            onClick = {
+                                viewModel.unsubscribe(userId)
+                                isSub.value = "false"
+                            }
+                        ) {
+                            Text(text = "Отписаться")
+                        }
+                    } else {
+                        Button(
+                            modifier = Modifier.fillMaxWidth(),
+                            onClick = {
+                                viewModel.subscribe(userId)
+                                isSub.value = "true"
+                            }
+                        ) {
+                            Text(text = "Подписаться")
+                        }
+                    }
                 }
             }
         }

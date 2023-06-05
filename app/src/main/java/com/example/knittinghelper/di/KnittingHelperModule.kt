@@ -76,6 +76,7 @@ object KnittingHelperModule {
     @Provides
     fun provideUserUseCases(repository: UserRepository)= UserUseCases(
         getUserDetails = GetUserDetails(repository = repository),
+        getUsers = GetUsers(repository = repository),
         setUserDetails = SetUserDetails(repository = repository),
         subscribe = Subscribe(repository = repository),
         unSubscribe = UnSubscribe(repository = repository),

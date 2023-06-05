@@ -28,6 +28,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.example.knittinghelper.presentation.Screens
 import com.example.knittinghelper.util.Response
+import kotlinx.coroutines.delay
 
 @Composable
 fun SignUpScreen(navController: NavHostController){
@@ -168,7 +169,7 @@ fun SignUpScreen(navController: NavHostController){
                 Text(text = "Зарегистрироваться")
             }
             Text(
-                text = "Уже зарегистрирован? Заходи", color = Color.Blue, modifier = Modifier
+                text = "Уже зарегистрирован? Заходи", modifier = Modifier
                     .padding(8.dp)
                     .clickable {
                         navController.navigate(route = Screens.SignInScreen.route) {
@@ -189,6 +190,7 @@ fun SignUpScreen(navController: NavHostController){
                         Spacer(modifier = Modifier.weight(1f))
                         Snackbar(modifier = Modifier.weight(5f)) {
                             Row(
+                                modifier = Modifier.fillMaxWidth(),
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.SpaceAround
                             ) {
@@ -204,9 +206,27 @@ fun SignUpScreen(navController: NavHostController){
                 }
                 is Response.Success -> {
                     if (response.data) {
-                        navController.navigate("projects_graph") {
-                            popUpTo(Screens.SplashScreen.route) {
-                                inclusive = true
+                        Snackbar {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.SpaceAround
+                                ) {
+                                    Text(text = "Регистрация...")
+                                    CircularProgressIndicator(
+                                        modifier = Modifier.size(24.dp),
+                                        color = MaterialTheme.colorScheme.onSurface
+                                    )
+                                }
+                            }
+                        }
+                        LaunchedEffect(key1 = true) {
+                            delay(1000)
+                            navController.navigate("projects_graph") {
+                                popUpTo(Screens.SplashScreen.route) {
+                                    inclusive = true
+                                }
                             }
                         }
                     }

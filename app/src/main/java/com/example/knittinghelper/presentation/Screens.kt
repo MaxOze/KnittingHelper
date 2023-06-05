@@ -16,6 +16,7 @@ sealed class Screens(val route: String) {
     object NeedleStockScreen : Screens("profile/needle/")
     object CreateNeedleScreen : Screens("profile/needle/create")
     object SubsScreen : Screens("profile/subs/")
+    object SubScreen : Screens("profile/subs/{userId}/{sub}")
 
 
     // Экраны проектов
@@ -28,6 +29,6 @@ sealed class Screens(val route: String) {
 
     // Экраны соцсети
     object FeedScreen : Screens("social/")
-    object ProfileScreen : Screens("social/{userId}/")
+    object ProfileScreen : Screens("social/{userId}/{sub}")
 
 }

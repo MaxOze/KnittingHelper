@@ -4,21 +4,19 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.knittinghelper.presentation.Screens
 import com.example.knittinghelper.presentation.components.cards.ProjectCardComponent
+import com.example.knittinghelper.presentation.components.util.NeedlesButton
 import com.example.knittinghelper.presentation.navigation.BottomNavigationMenu
 import com.example.knittinghelper.presentation.projects.viewmodels.ProjectsViewModel
 import com.example.knittinghelper.util.Response
@@ -135,6 +133,8 @@ fun ProjectsScreen(navController: NavController)  {
                         }
                     }
 
+                    val type =  remember { mutableStateOf("") }
+
                     LazyColumn(
                         modifier = Modifier
                             .padding(top = it.calculateTopPadding()),
@@ -155,9 +155,13 @@ fun ProjectsScreen(navController: NavController)  {
                                 }
                             }
                         } else {
+                            item {
+                                NeedlesButton(selectedType = type)
+                            }
                             val projects = response.data
                             items(projects) { project ->
-                                ProjectCardComponent(delete, project, navController)
+                                if (type.value == "" || project.needle == type.value )
+                                    ProjectCardComponent(delete, project, navController)
                             }
                             if (projects.size > 2) {
                                 item {

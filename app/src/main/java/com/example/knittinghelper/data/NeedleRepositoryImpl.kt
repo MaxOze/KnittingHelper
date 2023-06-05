@@ -6,6 +6,7 @@ import com.example.knittinghelper.util.Constants
 import com.example.knittinghelper.util.Response
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.flow
@@ -20,7 +21,7 @@ class NeedleRepositoryImpl @Inject constructor(
         Response.Loading
         val snapShotListener = firestore.collection(Constants.COLLECTION_NAME_NEEDLES)
             .whereEqualTo("userId", userId)
-            .orderBy("type")
+            .orderBy("thickness")
             .addSnapshotListener { snapshot, error ->
                 val response = if(snapshot!=null) {
                     val needles = snapshot.toObjects(Needle::class.java)
@@ -54,6 +55,7 @@ class NeedleRepositoryImpl @Inject constructor(
                 .addOnSuccessListener {
                     operationSuccessful = true
                 }.await()
+            delay(500)
             if(operationSuccessful) {
                 emit(Response.Success(operationSuccessful))
             } else {

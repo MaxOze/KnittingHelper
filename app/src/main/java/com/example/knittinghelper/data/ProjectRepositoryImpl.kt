@@ -180,6 +180,7 @@ class ProjectRepositoryImpl @Inject constructor(
         text: String,
         needle: String,
         photoUri: Uri?,
+        schemeUri: List<Uri?>,
         neededRow: Int,
         projectNeededRows: Int
     ): Flow<Response<Boolean>> = flow {
@@ -200,6 +201,20 @@ class ProjectRepositoryImpl @Inject constructor(
                     .putFile(photoUri).await()
                     .storage.downloadUrl.await()
                 newPart.photoUri = uri.toString()
+            }
+            if (schemeUri.isNotEmpty()) {
+                val uriList : ArrayList<String> = arrayListOf()
+                schemeUri.forEachIndexed() { index, URI ->
+                    if (URI != null) {
+                        val uri = storage.reference.child(Constants.FOLDER_NAME_POSTS)
+                            .child(partId)
+                            .child(index.toString())
+                            .putFile(URI).await()
+                            .storage.downloadUrl.await()
+                        uriList.add(uri.toString())
+                    }
+                }
+                newPart.schemeUrls = uriList
             }
 
             firestore.collection(Constants.COLLECTION_NAME_PARTS)
@@ -232,11 +247,14 @@ class ProjectRepositoryImpl @Inject constructor(
         projectRows: Int
     ): Flow<Response<Boolean>> = flow {
         firestore.collection(Constants.COLLECTION_NAME_PARTS)
-            .document(partId).update("countRow",addRows)
+            .document(partId).update("countRow", addRows)
         firestore.collection(Constants.COLLECTION_NAME_PROJECTS)
-            .document(projectId).update("countRows", projectRows + (addRows - oldRows),
-                                        "lastUpdate", Timestamp.now())
+            .document(projectId).update(
+                "countRows", projectRows + (addRows - oldRows),
+                "lastUpdate", Timestamp.now()
+            )
     }
+
 
     override fun deletePart(
         projectId: String,

@@ -24,6 +24,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.knittinghelper.R
+import com.example.knittinghelper.presentation.components.util.PhotoCards
 import com.example.knittinghelper.presentation.navigation.BottomNavigationMenu
 import com.example.knittinghelper.presentation.projects.viewmodels.PartViewModel
 import com.example.knittinghelper.util.Response
@@ -124,7 +125,9 @@ fun PartScreen(navController: NavController) {
                                 end = 16.dp
                             )
                         ) {
-                            Row {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
                                 if(part.photoUri != "") {
                                     AsyncImage(
                                         model = part.photoUri,
@@ -145,7 +148,7 @@ fun PartScreen(navController: NavController) {
                                     )
                                 }
                                 Spacer(modifier = Modifier.width(16.dp))
-                                Text(text = part.name)
+                                Text(text = part.name, style = MaterialTheme.typography.headlineSmall)
                             }
                             Divider(
                                 thickness = 1.dp,
@@ -156,9 +159,13 @@ fun PartScreen(navController: NavController) {
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.SpaceAround
                             ) {
+                                val updateResponse = viewModel.updatePartProgress.value
                                 FloatingActionButton(
+                                    elevation = FloatingActionButtonDefaults.elevation(
+                                        defaultElevation = if (updateResponse is Response.Loading) 0.dp else 4.dp
+                                    ),
                                     onClick = {
-                                        if(minusState.value) {
+                                        if(minusState.value && updateResponse !is Response.Loading) {
                                             rows--
                                             viewModel.updatePartProgress(part.countRow, rows)
                                         }
@@ -173,8 +180,11 @@ fun PartScreen(navController: NavController) {
                                 Text(
                                     text = "$rows/${part.neededRow}")
                                 FloatingActionButton(
+                                    elevation = FloatingActionButtonDefaults.elevation(
+                                        defaultElevation = if (updateResponse is Response.Loading) 0.dp else 4.dp
+                                    ),
                                     onClick = {
-                                        if(plusState.value) {
+                                        if(plusState.value && updateResponse !is Response.Loading) {
                                             rows++
                                             viewModel.updatePartProgress(part.countRow, rows)
                                         }
@@ -193,8 +203,15 @@ fun PartScreen(navController: NavController) {
                                 modifier = Modifier.padding(vertical = 10.dp)
                             )
                             Text(text = part.text)
+                            Divider(
+                                thickness = 1.dp,
+                                modifier = Modifier.padding(vertical = 10.dp)
+                            )
+                            PhotoCards(photosUri = part.schemeUrls)
+                            Spacer(modifier = Modifier.height(10.dp))
                         }
                     }
+
 
                     if (alert.value) {
                         AlertDialog(onDismissRequest = { alert.value = false }) {

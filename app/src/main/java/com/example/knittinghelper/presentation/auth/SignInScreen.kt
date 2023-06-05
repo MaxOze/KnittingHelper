@@ -110,7 +110,6 @@ fun SignInScreen(navController: NavHostController){
                     Spacer(modifier = Modifier.weight(1f))
                 }
                 Text(text="Новичок? Зарегистрируйся",
-                    color= Color.Blue,
                     modifier= Modifier.padding(top = 10.dp)
                         .clickable {
                             navController.navigate(route = Screens.SignUpScreen.route) {
@@ -131,6 +130,7 @@ fun SignInScreen(navController: NavHostController){
                         Spacer(modifier = Modifier.weight(1f))
                         Snackbar(modifier = Modifier.weight(5f)) {
                             Row(
+                                modifier = Modifier.fillMaxWidth(),
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.SpaceAround
                             ) {
@@ -149,6 +149,7 @@ fun SignInScreen(navController: NavHostController){
                         Snackbar {
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Row(
+                                    modifier = Modifier.fillMaxWidth(),
                                     verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement = Arrangement.SpaceAround
                                 ) {

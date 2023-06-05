@@ -1,5 +1,6 @@
 package com.example.knittinghelper.presentation.profile.screens
 
+import android.net.Uri
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -24,6 +25,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.knittinghelper.domain.model.User
 import com.example.knittinghelper.presentation.Screens
+import com.example.knittinghelper.presentation.components.util.UpdatePhotoComponent
 import com.example.knittinghelper.presentation.navigation.BottomNavigationMenu
 import com.example.knittinghelper.presentation.profile.viewmodels.ProfileViewModel
 import com.example.knittinghelper.util.Response
@@ -37,6 +39,7 @@ fun SettingsScreen(navController: NavController) {
 
     LaunchedEffect(key1 = update) {
         viewModel.getUserInfo()
+        update.value = false
     }
 
     Scaffold(
@@ -79,10 +82,8 @@ fun SettingsScreen(navController: NavController) {
             is Response.Success -> {
                 if (response.data != null) {
                     val user = response.data
-                    val name = remember{ mutableStateOf(user.userName) }
-                    val nameError = remember{ mutableStateOf(false) }
                     val bio = remember{ mutableStateOf(user.bio) }
-                    val photo = remember{ mutableStateOf(user.imageUri) }
+                    val photo = remember{ mutableStateOf<Uri?>(null) }
                     LazyColumn(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         modifier = Modifier
@@ -99,27 +100,23 @@ fun SettingsScreen(navController: NavController) {
                         }
                         item {
                             OutlinedTextField(
-                                value = name.value,
-                                onValueChange = { if (it.length <= 20) name.value = it },
-                                singleLine = true,
-                                isError = nameError.value,
-                                supportingText = {
-                                    Row {
-                                        if (nameError.value) {
-                                            Icon(
-                                                imageVector = Icons.Outlined.Error,
-                                                contentDescription = "error",
-                                                modifier = Modifier.size(10.dp)
-                                            )
-                                        }
-                                        Text(text = "*обязательное поле")
-                                        Text(text = "${name.value.length}/20")
-                                    }
-                                },
+                                value = bio.value,
+                                onValueChange = { bio.value = it },
                                 label = {
-                                    Text(text = "Введите имя:")
+                                    Text(text = "Описание:")
                                 }
                             )
+                        }
+                        item {
+                            UpdatePhotoComponent(selectedPhoto = photo, photoUri = user.imageUri)
+                        }
+                        item {
+                            Button(onClick = {
+                                viewModel.setUserInfo(photo.value, bio.value)
+                                update.value = true
+                            }) {
+                                Text(text = "Обновить")
+                            }
                         }
                     }
                 }

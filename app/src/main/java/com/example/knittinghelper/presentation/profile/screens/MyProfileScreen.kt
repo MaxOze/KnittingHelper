@@ -161,7 +161,7 @@ fun MyProfileScreen(navController: NavController) {
                                 val posts = postsResponse.data
                                 if (!posts.isNullOrEmpty()) {
                                     items(posts) { post ->
-                                        PostCardComponent(post = post, navController = navController)
+                                        PostCardComponent(post, navController, true, user)
                                     }
                                     item {
                                         Divider(

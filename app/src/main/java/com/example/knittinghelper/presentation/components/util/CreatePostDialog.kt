@@ -23,7 +23,7 @@ fun CreatePostDialog(
     photoUri: String
 ) {
     val needle = remember { mutableStateOf("") }
-    val text = remember { mutableStateOf("") }
+    val text = remember { mutableStateOf("Описание") }
     val photos = remember { mutableStateOf<List<Uri?>>(emptyList()) }
 
     AlertDialog(

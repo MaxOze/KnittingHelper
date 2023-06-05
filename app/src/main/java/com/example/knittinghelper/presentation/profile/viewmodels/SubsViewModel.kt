@@ -53,20 +53,20 @@ class SubsViewModel @Inject constructor(
         }
     }
 
-    fun subscribe(subUserId: String, userIds: List<String>) {
+    fun subscribe(subUserId: String) {
         if(userId != null) {
             viewModelScope.launch {
-                userUseCases.subscribe(userId, userIds, subUserId).collect {
+                userUseCases.subscribe(userId, subUserId).collect {
                     _unsubscribeData.value = it
                 }
             }
         }
     }
 
-    fun unsubscribe(subUserId: String, userIds: List<String>) {
+    fun unsubscribe(subUserId: String) {
         if(userId != null) {
             viewModelScope.launch {
-                userUseCases.unSubscribe(userId, userIds, subUserId).collect {
+                userUseCases.unSubscribe(userId, subUserId).collect {
                     _unsubscribeData.value = it
                 }
             }

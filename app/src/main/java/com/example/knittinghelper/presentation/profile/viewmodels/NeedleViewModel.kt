@@ -51,6 +51,10 @@ class NeedleViewModel @Inject constructor(
         }
     }
 
+    fun createUndo() {
+        _createNeedleData.value = Response.Success(false)
+    }
+
     fun deleteNeedle(needleId: String) {
         if(userId != null) {
             viewModelScope.launch {
@@ -59,5 +63,9 @@ class NeedleViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    fun deleteOk() {
+        _deleteNeedleData.value = Response.Success(false)
     }
 }

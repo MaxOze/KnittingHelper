@@ -31,6 +31,7 @@ import com.example.knittinghelper.domain.model.Project
 import com.example.knittinghelper.presentation.components.util.ProgressBarComponent
 import com.example.knittinghelper.presentation.projects.viewmodels.PartViewModel
 import com.example.knittinghelper.presentation.projects.viewmodels.ProjectViewModel
+import com.example.knittinghelper.util.Needles
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -40,6 +41,7 @@ fun ProjectCardComponent(delete: MutableState<String>, project: Project, navCont
 
     val date = Date(project.lastUpdate.seconds * 1000L)
     val format = SimpleDateFormat("HH:mm dd/MM/yy", Locale.getDefault())
+    format.timeZone = Calendar.getInstance().timeZone;
     val dateString = format.format(date)
     Card(
         elevation = CardDefaults.cardElevation(defaultElevation = 10.dp, pressedElevation = 3.dp),
@@ -72,7 +74,7 @@ fun ProjectCardComponent(delete: MutableState<String>, project: Project, navCont
                         )
                     } else {
                         Image(
-                            painter = painterResource(id = R.drawable.ic_launcher_background),
+                            painter = painterResource(id = R.drawable.photo),
                             contentDescription = "Project Image",
                             modifier = Modifier
                                 .size(50.dp)
@@ -83,7 +85,7 @@ fun ProjectCardComponent(delete: MutableState<String>, project: Project, navCont
                     Spacer(modifier = Modifier.width(20.dp))
                     Text(
                         text = project.name,
-                        style = MaterialTheme.typography.titleLarge
+                        style = MaterialTheme.typography.titleMedium
                     )
                 }
                 Box {
@@ -122,15 +124,22 @@ fun ProjectCardComponent(delete: MutableState<String>, project: Project, navCont
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
+                AsyncImage(
+                    model = Needles.chooseNeedle(project.needle).icon,
+                    contentDescription = "image",
+                    modifier = Modifier
+                        .size(30.dp)
+                        .clip(CircleShape),
+                    contentScale = ContentScale.Crop
+                )
                 Text(
                     text = "Последнее изменение:",
-                    style = MaterialTheme.typography.titleMedium,
+                    style = MaterialTheme.typography.titleSmall,
                 )
                 Spacer(modifier = Modifier.width(12.dp))
                 Text(
                     text = dateString,
                     style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier.align(Alignment.Bottom)
                 )
             }
         }
@@ -159,15 +168,17 @@ fun ProjectCardComponent(pad: PaddingValues,  project: Project) {
                         contentDescription = "image",
                         modifier = Modifier
                             .size(60.dp)
-                            .clip(CircleShape)
+                            .clip(CircleShape),
+                        contentScale = ContentScale.Crop
                     )
                 } else {
                     Image(
-                        painter = painterResource(id = R.drawable.ic_launcher_background),
+                        painter = painterResource(id = R.drawable.photo),
                         contentDescription = "Project Image",
                         modifier = Modifier
                             .size(60.dp)
-                            .clip(CircleShape)
+                            .clip(CircleShape),
+                        contentScale = ContentScale.Crop
                     )
                 }
                 Spacer(modifier = Modifier.width(20.dp))
@@ -182,6 +193,13 @@ fun ProjectCardComponent(pad: PaddingValues,  project: Project) {
                 thickness = 1.dp,
                 modifier = Modifier.padding(vertical = 12.dp, horizontal = 12.dp)
             )
+            if (project.videoUri != "") {
+                Text(text = "Ссылка: ${project.videoUri}", modifier = Modifier.padding(horizontal = 12.dp))
+                Divider(
+                    thickness = 1.dp,
+                    modifier = Modifier.padding(vertical = 12.dp, horizontal = 12.dp)
+                )
+            }
         }
     }
 }
@@ -222,11 +240,12 @@ fun SimpleProjectCardComponent(pad: PaddingValues,  project: Project) {
                         modifier = Modifier
                             .size(60.dp)
                             .clip(CircleShape)
+
                     )
                 } else {
                     Image(
                         contentScale = ContentScale.Crop,
-                        painter = painterResource(id = R.drawable.ic_launcher_background),
+                        painter = painterResource(id = R.drawable.photo),
                         contentDescription = "Project Image",
                         modifier = Modifier
                             .size(60.dp)
