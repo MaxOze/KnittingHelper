@@ -28,6 +28,6 @@ class CreateNeedle @Inject constructor(
 class DeleteNeedle @Inject constructor(
     private val repository: NeedleRepository
 ) {
-    operator fun invoke(needleId: String) = repository.deleteNeedle(needleId)
+    operator fun invoke(userId: String, needleId: String) = repository.deleteNeedle(userId, needleId)
 }
 

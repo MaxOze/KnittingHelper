@@ -11,17 +11,14 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.knittinghelper.domain.model.Part
 import com.example.knittinghelper.domain.model.Project
-import com.example.knittinghelper.presentation.Screens
 import com.example.knittinghelper.presentation.components.cards.PartCardComponent
 import com.example.knittinghelper.presentation.components.cards.ProjectCardComponent
-import com.example.knittinghelper.presentation.components.cards.SimpleProjectCardComponent
 import com.example.knittinghelper.presentation.navigation.BottomNavigationMenu
 import com.example.knittinghelper.presentation.projects.viewmodels.ProjectViewModel
 import com.example.knittinghelper.util.Response
@@ -38,7 +35,6 @@ fun ProjectScreen(navController: NavController) {
     }
     val projectState = remember { mutableStateOf<Project?>(null) }
     val name = remember { mutableStateOf("") }
-    val simple = remember { mutableStateOf(true) }
     val snackbarHostState = remember { SnackbarHostState() }
     val delete = remember { mutableStateOf<Part?>(null) }
     val deleteSuccess = remember { mutableStateOf(0) }
@@ -70,14 +66,12 @@ fun ProjectScreen(navController: NavController) {
                  },
         snackbarHost = { SnackbarHost(snackbarHostState) },
         floatingActionButton = {
-            if (!simple.value) {
                 ExtendedFloatingActionButton(
                     onClick = { navController.navigate("projects-create/${projectState.value?.projectId}/") },
                     expanded = expandedFab.value,
                     icon = { Icon(Icons.Filled.Add, "add icon") },
                     text = { Text(text = "Создать новую часть") },
                 )
-            }
         },
         floatingActionButtonPosition = FabPosition.End,
         bottomBar = {
@@ -154,50 +148,45 @@ fun ProjectScreen(navController: NavController) {
                     if (project is Response.Success) {
                         if (project.data != null) {
                             name.value = project.data.name
-                            simple.value = project.data.simpleProject
                             projectState.value = project.data
-                            if (simple.value) {
+
+                            item {
+                                ProjectCardComponent(it, project.data)
+                            }
+                            if (response.data.isEmpty()) {
                                 item {
-                                    SimpleProjectCardComponent(it, project.data)
-                                }
-                            } else {
-                                item {
-                                    ProjectCardComponent(it, project.data)
-                                }
-                                if (response.data.isEmpty()) {
-                                    item {
-                                        Row(
-                                            horizontalArrangement = Arrangement.Center,
-                                            verticalAlignment = Alignment.CenterVertically,
-                                            modifier = Modifier.padding(top = 50.dp)
-                                        ) {
-                                            TextButton(onClick = {
-                                                navController.navigate("projects-create/${projectState.value?.projectId}/")
-                                            }) {
-                                                Text(
-                                                    text = "Добавьте новые части!",
-                                                    style = MaterialTheme.typography.titleLarge
-                                                )
-                                            }
-                                        }
-                                    }
-                                } else {
-                                    val parts = response.data
-                                    items(parts) { part ->
-                                        PartCardComponent(
-                                            delete,
-                                            project.data.countRows,
-                                            part,
-                                            navController
-                                        )
-                                    }
-                                    if (parts.size > 1) {
-                                        item {
-                                            Divider(
-                                                thickness = 0.dp,
-                                                modifier = Modifier.padding(top = 170.dp)
+                                    Row(
+                                        horizontalArrangement = Arrangement.Center,
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        modifier = Modifier.padding(top = 50.dp)
+                                    ) {
+                                        TextButton(onClick = {
+                                            navController.navigate("projects-create/${projectState.value?.projectId}/")
+                                        }) {
+                                            Text(
+                                                text = "Добавьте новые части!",
+                                                style = MaterialTheme.typography.titleLarge
                                             )
                                         }
+                                    }
+                                }
+                            } else {
+                                val parts = response.data
+                                items(parts) { part ->
+                                    PartCardComponent(
+                                        project.data.projectId,
+                                        delete,
+                                        project.data.countRows,
+                                        part,
+                                        navController
+                                    )
+                                }
+                                if (parts.size > 1) {
+                                    item {
+                                        Divider(
+                                            thickness = 0.dp,
+                                            modifier = Modifier.padding(top = 170.dp)
+                                        )
                                     }
                                 }
                             }

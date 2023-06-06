@@ -3,7 +3,6 @@ package com.example.knittinghelper.domain.model
 import com.google.firebase.Timestamp
 
 data class Part(
-    var projectId: String = "",
     var partId: String = "",
     var name: String = "",
     var text: String = "",

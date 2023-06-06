@@ -49,12 +49,11 @@ class ProjectsViewModel @Inject constructor(
         photoUri: Uri?,
         videoUri: String,
         needle: String,
-        simpleProject: Boolean,
         neededRows: Int
     ) {
         if(userId != null) {
             viewModelScope.launch {
-                projectUseCases.createProject(userId, name, text, photoUri, videoUri, needle, simpleProject, neededRows).collect {
+                projectUseCases.createProject(userId, name, text, photoUri, videoUri, needle, neededRows).collect {
                     _createProjectData.value = it
                 }
             }
@@ -68,7 +67,7 @@ class ProjectsViewModel @Inject constructor(
     fun deleteProject(projectId: String) {
         if(userId != null) {
             viewModelScope.launch {
-                projectUseCases.deleteProject(projectId).collect {
+                projectUseCases.deleteProject(userId, projectId).collect {
                     _deleteProjectData.value = it
                 }
             }
@@ -78,5 +77,4 @@ class ProjectsViewModel @Inject constructor(
     fun deleteOk() {
         _deleteProjectData.value = Response.Success(false)
     }
-
 }

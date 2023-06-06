@@ -102,7 +102,7 @@ fun PostCardComponent(post: Post, navController: NavController, user: Boolean, u
                     Spacer(modifier = Modifier.width(20.dp))
                     Text(
                         text = post.userName,
-                        style = MaterialTheme.typography.titleLarge
+                        style = MaterialTheme.typography.titleSmall
                     )
                 }
                 if (user) {

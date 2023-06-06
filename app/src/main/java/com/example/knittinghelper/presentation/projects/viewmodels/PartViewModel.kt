@@ -35,7 +35,7 @@ class PartViewModel @Inject constructor(
     fun getPartInfo() {
         if(userId != null) {
             viewModelScope.launch {
-                projectUseCases.getPart(partId).collect {
+                projectUseCases.getPart(userId, projectId, partId).collect {
                     _getPartData.value = it
                 }
             }
@@ -45,7 +45,7 @@ class PartViewModel @Inject constructor(
     fun updatePartProgress(oldRows: Int, addRows: Int) {
         if(userId != null) {
             viewModelScope.launch {
-                projectUseCases.updatePartProgress(projectId, partId, oldRows, addRows, count.toInt()).collect() {
+                projectUseCases.updatePartProgress(userId, projectId, partId, oldRows, addRows, count.toInt()).collect() {
                     _updatePartProgress.value = it
                 }
             }

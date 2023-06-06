@@ -66,7 +66,7 @@ class YarnViewModel @Inject constructor(
     fun updateYarn(yarnId: String, text: String, count: Int) {
         if(userId != null) {
             viewModelScope.launch {
-                yarnUseCases.updateYarn(yarnId, text, count).collect {
+                yarnUseCases.updateYarn(userId, yarnId, text, count).collect {
                     _updateYarnData.value = it
                 }
             }
@@ -80,7 +80,7 @@ class YarnViewModel @Inject constructor(
     fun deleteYarn(yarnId: String) {
         if(userId != null) {
             viewModelScope.launch {
-                yarnUseCases.deleteYarn(yarnId).collect {
+                yarnUseCases.deleteYarn(userId, yarnId).collect {
                     _deleteYarnData.value = it
                 }
             }

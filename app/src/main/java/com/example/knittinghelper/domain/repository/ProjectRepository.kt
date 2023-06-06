@@ -8,7 +8,7 @@ import com.example.knittinghelper.util.Response
 import kotlinx.coroutines.flow.Flow
 
 interface ProjectRepository {
-    fun getProject(projectId: String): Flow<Response<Project>>
+    fun getProject(userId: String, projectId: String): Flow<Response<Project>>
 
     fun getUserProjects(userId: String): Flow<Response<List<Project>>>
 
@@ -19,13 +19,12 @@ interface ProjectRepository {
         photoUri: Uri?,
         videoUri: String,
         needle: String,
-        simpleProject: Boolean,
         neededRow: Int): Flow<Response<Boolean>>
 
-    fun deleteProject(projectId: String): Flow<Response<Boolean>>
+    fun deleteProject(userId: String, projectId: String): Flow<Response<Boolean>>
 
-    fun updateSimpleProject(projectId: String, newRows: Int) : Flow<Response<Boolean>>
     fun updatePartProgress(
+        userId: String,
         projectId: String,
         partId: String,
         oldRows: Int,
@@ -33,11 +32,12 @@ interface ProjectRepository {
         projectRows: Int
     ) : Flow<Response<Boolean>>
 
-    fun getPart(partId: String): Flow<Response<Part>>
+    fun getPart(userId: String, projectId: String, partId: String): Flow<Response<Part>>
 
-    fun getProjectParts(projectId: String): Flow<Response<List<Part>>>
+    fun getProjectParts(userId: String, projectId: String): Flow<Response<List<Part>>>
 
     fun createPart(
+        userId: String,
         projectId: String,
         name: String,
         text: String,
@@ -48,6 +48,7 @@ interface ProjectRepository {
         projectNeededRows: Int): Flow<Response<Boolean>>
 
     fun deletePart(
+        userId: String,
         projectId: String,
         partId: String,
         rows: Int,

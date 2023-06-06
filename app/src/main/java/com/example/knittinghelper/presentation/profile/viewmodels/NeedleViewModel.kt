@@ -58,7 +58,7 @@ class NeedleViewModel @Inject constructor(
     fun deleteNeedle(needleId: String) {
         if(userId != null) {
             viewModelScope.launch {
-                needleUseCases.deleteNeedle(needleId).collect {
+                needleUseCases.deleteNeedle(userId, needleId).collect {
                     _deleteNeedleData.value = it
                 }
             }

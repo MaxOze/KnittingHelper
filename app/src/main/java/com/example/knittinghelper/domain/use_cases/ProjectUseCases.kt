@@ -12,7 +12,6 @@ data class ProjectUseCases(
     val getPart: GetPart,
     val getProjectParts: GetProjectParts,
     val createPart: CreatePart,
-    val updateSimpleProject: UpdateSimpleProject,
     val updatePartProgress: UpdatePartProgress,
     val deletePart: DeletePart
 )
@@ -20,7 +19,7 @@ data class ProjectUseCases(
 class GetProject @Inject constructor(
     private val repository: ProjectRepository
 ) {
-    operator fun invoke(projectId: String) = repository.getProject(projectId)
+    operator fun invoke(userId: String, projectId: String) = repository.getProject(userId, projectId)
 }
 
 
@@ -40,34 +39,34 @@ class CreateProject @Inject constructor(
         photoUri: Uri?,
         videoUri: String,
         needle: String,
-        simpleProject: Boolean,
         neededRow: Int
-    ) = repository.createProject(userId, name, text, photoUri, videoUri, needle, simpleProject, neededRow)
+    ) = repository.createProject(userId, name, text, photoUri, videoUri, needle, neededRow)
 }
 
 class DeleteProject @Inject constructor(
     private val repository: ProjectRepository
 ) {
-    operator fun invoke(projectId: String) = repository.deleteProject(projectId)
+    operator fun invoke(userId: String, projectId: String) = repository.deleteProject(userId, projectId)
 }
 
 class GetPart @Inject constructor(
     private val repository: ProjectRepository
 ) {
-    operator fun invoke(partId: String) = repository.getPart(partId)
+    operator fun invoke(userId: String, projectId: String, partId: String) = repository.getPart(userId, projectId, partId)
 }
 
 
 class GetProjectParts @Inject constructor(
     private val repository: ProjectRepository
 ) {
-    operator fun invoke(projectId: String) = repository.getProjectParts(projectId)
+    operator fun invoke(userId: String, projectId: String) = repository.getProjectParts(userId, projectId)
 }
 
 class CreatePart @Inject constructor(
     private val repository: ProjectRepository
 ) {
     operator fun invoke(
+        userId: String,
         projectId: String,
         name: String,
         text: String,
@@ -76,39 +75,32 @@ class CreatePart @Inject constructor(
         schemeUri: List<Uri?>,
         neededRow: Int,
         projectNeededRows: Int
-    ) = repository.createPart(projectId, name, text, needle, photoUri, schemeUri, neededRow, projectNeededRows)
-}
-
-class UpdateSimpleProject @Inject constructor(
-    private val repository: ProjectRepository
-) {
-    operator fun invoke(
-        projectId: String,
-        newRows: Int
-    ) = repository.updateSimpleProject(projectId, newRows)
+    ) = repository.createPart(userId, projectId, name, text, needle, photoUri, schemeUri, neededRow, projectNeededRows)
 }
 
 class UpdatePartProgress @Inject constructor(
     private val repository: ProjectRepository
 ) {
     operator fun invoke(
+        userId: String,
         projectId: String,
         partId: String,
         oldRows: Int,
         addRows: Int,
         projectRows: Int
-    ) = repository.updatePartProgress(projectId, partId, oldRows, addRows, projectRows)
+    ) = repository.updatePartProgress(userId, projectId, partId, oldRows, addRows, projectRows)
 }
 
 class DeletePart @Inject constructor(
     private val repository: ProjectRepository
 ) {
     operator fun invoke(
+        userId: String,
         projectId: String,
         partId: String,
         rows: Int,
         neededRows: Int,
         projectRows: Int,
         projectNeededRows: Int
-    ) = repository.deletePart(projectId, partId, rows, neededRows, projectRows, projectNeededRows)
+    ) = repository.deletePart(userId, projectId, partId, rows, neededRows, projectRows, projectNeededRows)
 }

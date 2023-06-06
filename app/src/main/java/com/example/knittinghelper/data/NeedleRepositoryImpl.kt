@@ -19,8 +19,9 @@ class NeedleRepositoryImpl @Inject constructor(
 
     override fun getUserNeedles(userId: String): Flow<Response<List<Needle>>> = callbackFlow {
         Response.Loading
-        val snapShotListener = firestore.collection(Constants.COLLECTION_NAME_NEEDLES)
-            .whereEqualTo("userId", userId)
+        val snapShotListener = firestore.collection(Constants.COLLECTION_NAME_USERS)
+            .document(userId)
+            .collection(Constants.COLLECTION_NAME_NEEDLES)
             .orderBy("thickness")
             .addSnapshotListener { snapshot, error ->
                 val response = if(snapshot!=null) {
@@ -43,14 +44,15 @@ class NeedleRepositoryImpl @Inject constructor(
     ): Flow<Response<Boolean>> = flow {
         var operationSuccessful = false
         try {
-            val needleId = firestore.collection(Constants.COLLECTION_NAME_NEEDLES).document().id
+            val needleId = firestore.collection(Constants.COLLECTION_NAME_USERS)
+                .document(userId).collection(Constants.COLLECTION_NAME_NEEDLES).document().id
             val newNeedle = Needle(
-                userId = userId,
                 needleId = needleId,
                 type = type,
                 thickness = thickness
             )
-            firestore.collection(Constants.COLLECTION_NAME_NEEDLES)
+            firestore.collection(Constants.COLLECTION_NAME_USERS)
+                .document(userId).collection(Constants.COLLECTION_NAME_NEEDLES)
                 .document(needleId).set(newNeedle)
                 .addOnSuccessListener {
                     operationSuccessful = true
@@ -66,10 +68,12 @@ class NeedleRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun deleteNeedle(needleId: String): Flow<Response<Boolean>> = flow{
+    override fun deleteNeedle(userId: String, needleId: String): Flow<Response<Boolean>> = flow{
         var operationSuccessful = false
         try {
-            firestore.collection(Constants.COLLECTION_NAME_NEEDLES)
+            firestore.collection(Constants.COLLECTION_NAME_USERS)
+                .document(userId)
+                .collection(Constants.COLLECTION_NAME_NEEDLES)
                 .document(needleId).delete()
                 .addOnSuccessListener {
                     operationSuccessful = true

@@ -36,7 +36,6 @@ fun CreateProjectScreen(navController: NavController) {
     val text = remember { mutableStateOf("") }
     val imageUri = remember { mutableStateOf<Uri?>(null) }
     val videoLink = remember { mutableStateOf("") }
-    val simple = remember { mutableStateOf(false) }
     val neededRows = remember { mutableStateOf("0") }
     val videoError = remember { mutableStateOf(false) }
     val nameError = remember { mutableStateOf(false) }
@@ -219,37 +218,7 @@ fun CreateProjectScreen(navController: NavController) {
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri),
                 modifier = Modifier.fillMaxWidth()
             )
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .height(60.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                PlainTooltipBox(
-                    tooltip = { Text("Проект состоит из одной части") }
-                ) {
-                    Checkbox(
-                        checked = simple.value,
-                        onCheckedChange = { simple.value = !simple.value }
-                    )
-                }
-                Text(
-                    text = "Проект из\nодной части",
-                    style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier.padding(end = 16.dp)
-                )
-                TextField(
-                    enabled = simple.value,
-                    value = if (simple.value) neededRows.value else "0",
-                    onValueChange = { neededRows.value = it },
-                    supportingText = {
-                        if (simple.value) Text(text = "*обязательное поле")
-                    },
-                    label = { Text(text = "Количество рядов") },
-                    modifier = Modifier.fillMaxWidth(),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
-                )
-            }
+
             Button(
                 onClick = {
                     nameError.value = name.value.isEmpty()
@@ -269,7 +238,6 @@ fun CreateProjectScreen(navController: NavController) {
                             photoUri = imageUri.value,
                             videoUri = videoLink.value,
                             needle = needle.value,
-                            simpleProject = simple.value,
                             neededRows = neededRows.value.toInt()
                         )
                         buttonState.value = true
@@ -281,8 +249,11 @@ fun CreateProjectScreen(navController: NavController) {
             ) {
                 Text(text = "Создать проект")
             }
-            Divider(modifier = Modifier
-                .padding(bottom = 40.dp))
+            Divider(
+                modifier = Modifier
+                    .padding(bottom = 40.dp)
+            )
         }
     }
 }
+

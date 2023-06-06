@@ -228,7 +228,7 @@ fun CreateYarnScreen(navController: NavController) {
                     supportingText = {
                         Text(text = "в штуках")
                     },
-                    label = { Text(text = "Количество") },
+                    label = { Text(text = "Кол-во") },
                     modifier = Modifier.weight(1f),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                 )

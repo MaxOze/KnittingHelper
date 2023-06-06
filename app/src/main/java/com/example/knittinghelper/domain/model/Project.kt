@@ -4,7 +4,6 @@ import com.google.firebase.Timestamp
 
 data class Project(
     var projectId: String = "",
-    var userId: String = "",
     var name: String = "",
     var text: String = "",
     var photoUri: String = "",
@@ -13,5 +12,4 @@ data class Project(
     var countRows: Int = 0,
     var neededRows: Int = 0,
     var lastUpdate: Timestamp = Timestamp.now(),
-    var simpleProject: Boolean = false
 )

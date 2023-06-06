@@ -17,9 +17,10 @@ interface YarnRepository {
         photoUri: Uri?
     ): Flow<Response<Boolean>>
     fun updateYarn(
+        userId: String,
         yarnId: String,
         text: String,
         count: Int
     ): Flow<Response<Boolean>>
-    fun deleteYarn(yarnId: String): Flow<Response<Boolean>>
+    fun deleteYarn(userId: String, yarnId: String): Flow<Response<Boolean>>
 }

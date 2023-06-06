@@ -21,8 +21,9 @@ class YarnRepositoryImpl @Inject constructor(
 ) : YarnRepository {
     override fun getUserYarns(userId: String): Flow<Response<List<Yarn>>> = callbackFlow {
         Response.Loading
-        val snapShotListener = firestore.collection(Constants.COLLECTION_NAME_YARNS)
-            .whereEqualTo("userId", userId)
+        val snapShotListener = firestore.collection(Constants.COLLECTION_NAME_USERS)
+            .document(userId)
+            .collection(Constants.COLLECTION_NAME_YARNS)
             .orderBy("amount", Query.Direction.DESCENDING)
             .addSnapshotListener { snapshot, error ->
                 val response = if(snapshot!=null) {
@@ -49,9 +50,10 @@ class YarnRepositoryImpl @Inject constructor(
     ): Flow<Response<Boolean>> = flow {
         var operationSuccessful = false
         try {
-            val yarnId = firestore.collection(Constants.COLLECTION_NAME_YARNS).document().id
+            val yarnId = firestore.collection(Constants.COLLECTION_NAME_USERS)
+                .document(userId)
+                .collection(Constants.COLLECTION_NAME_YARNS).document().id
             val newYarn = Yarn(
-                userId = userId,
                 yarnId = yarnId,
                 color = color,
                 material = material,
@@ -60,13 +62,17 @@ class YarnRepositoryImpl @Inject constructor(
                 amount = amount
             )
             if (photoUri != null) {
-                val uri = storage.reference.child(Constants.FOLDER_NAME_YARNS)
+                val uri = storage.reference
+                    .child(Constants.FOLDER_NAME_USERS)
+                    .child(userId)
+                    .child(Constants.FOLDER_NAME_YARNS)
                     .child(yarnId)
                     .putFile(photoUri).await()
                     .storage.downloadUrl.await()
                 newYarn.photoUri = uri.toString()
             }
-            firestore.collection(Constants.COLLECTION_NAME_YARNS)
+            firestore.collection(Constants.COLLECTION_NAME_USERS)
+                .document(userId).collection(Constants.COLLECTION_NAME_YARNS)
                 .document(yarnId).set(newYarn)
                 .addOnSuccessListener {
                     operationSuccessful = true
@@ -81,16 +87,18 @@ class YarnRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun updateYarn(yarnId: String, text: String, count: Int): Flow<Response<Boolean>> = flow {
+    override fun updateYarn(userId: String, yarnId: String, text: String, count: Int): Flow<Response<Boolean>> = flow {
         var operationSuccessful = false
         try {
             if (count != -1) {
-                firestore.collection(Constants.COLLECTION_NAME_YARNS)
+                firestore.collection(Constants.COLLECTION_NAME_USERS)
+                    .document(userId).collection(Constants.COLLECTION_NAME_YARNS)
                     .document(yarnId).update("amount", count).addOnSuccessListener {
                         operationSuccessful = true
                     }.await()
             } else {
-                firestore.collection(Constants.COLLECTION_NAME_YARNS)
+                firestore.collection(Constants.COLLECTION_NAME_USERS)
+                    .document(userId).collection(Constants.COLLECTION_NAME_YARNS)
                     .document(yarnId).update("text", text).addOnSuccessListener {
                         operationSuccessful = true
                     }.await()
@@ -105,10 +113,11 @@ class YarnRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun deleteYarn(yarnId: String): Flow<Response<Boolean>> = flow {
+    override fun deleteYarn(userId: String, yarnId: String): Flow<Response<Boolean>> = flow {
         var operationSuccessful = false
         try {
-            firestore.collection(Constants.COLLECTION_NAME_YARNS)
+            firestore.collection(Constants.COLLECTION_NAME_USERS)
+                .document(userId).collection(Constants.COLLECTION_NAME_YARNS)
                 .document(yarnId).delete().addOnSuccessListener {
                     operationSuccessful = true
                 }.await()

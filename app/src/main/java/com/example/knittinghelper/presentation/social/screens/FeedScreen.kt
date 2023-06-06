@@ -151,10 +151,11 @@ fun FeedScreen(navController: NavController) {
                                         horizontalArrangement = Arrangement.SpaceBetween
                                     ) {
                                         OutlinedTextField(
+                                            singleLine = true,
                                             label = {
-                                                Text(text = "Поиск пользователей")
+                                                Text(text = "Поиск пользователей", style = MaterialTheme.typography.bodySmall)
                                             },
-                                            modifier = Modifier.weight(8f),
+                                            modifier = Modifier.weight(6.5f),
                                             value = search.value,
                                             onValueChange = {
                                                 search.value = it

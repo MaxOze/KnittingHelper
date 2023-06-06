@@ -24,9 +24,11 @@ class ProjectRepositoryImpl @Inject constructor(
 ) : ProjectRepository {
     private var operationSuccessful = false
 
-    override fun getProject(projectId: String): Flow<Response<Project>> = callbackFlow {
+    override fun getProject(userId: String, projectId: String): Flow<Response<Project>> = callbackFlow {
         Response.Loading
-        val snapShotListener = firestore.collection(Constants.COLLECTION_NAME_PROJECTS)
+        val snapShotListener = firestore.collection(Constants.COLLECTION_NAME_USERS)
+            .document(userId)
+            .collection(Constants.COLLECTION_NAME_PROJECTS)
             .document(projectId)
             .addSnapshotListener{ snapshot, error->
                 val response = if(snapshot!=null) {
@@ -44,8 +46,9 @@ class ProjectRepositoryImpl @Inject constructor(
 
     override fun getUserProjects(userId: String): Flow<Response<List<Project>>> = callbackFlow {
         Response.Loading
-        val snapShotListener = firestore.collection(Constants.COLLECTION_NAME_PROJECTS)
-            .whereEqualTo("userId", userId)
+        val snapShotListener = firestore.collection(Constants.COLLECTION_NAME_USERS)
+            .document(userId)
+            .collection(Constants.COLLECTION_NAME_PROJECTS)
             .orderBy("lastUpdate", Query.Direction.DESCENDING)
             .addSnapshotListener { snapshot, error ->
                 val response = if(snapshot!=null) {
@@ -68,32 +71,32 @@ class ProjectRepositoryImpl @Inject constructor(
         photoUri: Uri?,
         videoUri: String,
         needle: String,
-        simpleProject: Boolean,
         neededRow: Int
     ): Flow<Response<Boolean>> = flow {
         operationSuccessful = false
         try {
-            val projectId = firestore.collection(Constants.COLLECTION_NAME_PROJECTS).document().id
+            val projectId = firestore.collection(Constants.COLLECTION_NAME_USERS)
+                .document(userId)
+                .collection(Constants.COLLECTION_NAME_PROJECTS).document().id
             val newProject = Project(
-                userId = userId,
                 projectId = projectId,
                 name = name,
                 text = text,
                 videoUri = videoUri,
                 needle = needle,
-                simpleProject = simpleProject
             )
             if(photoUri !== null) {
-                val uri = storage.reference.child(Constants.FOLDER_NAME_PROJECTS)
+                val uri = storage.reference.child(Constants.FOLDER_NAME_USERS)
+                    .child(userId)
+                    .child(Constants.FOLDER_NAME_PROJECTS)
                     .child(projectId)
                     .putFile(photoUri).await()
                     .storage.downloadUrl.await()
                 newProject.photoUri = uri.toString()
             }
-
-            if (simpleProject) newProject.neededRows = neededRow
-
-            firestore.collection(Constants.COLLECTION_NAME_PROJECTS)
+            firestore.collection(Constants.COLLECTION_NAME_USERS)
+                .document(userId)
+                .collection(Constants.COLLECTION_NAME_PROJECTS)
                 .document(projectId).set(newProject)
                 .addOnSuccessListener {
                     operationSuccessful = true
@@ -108,38 +111,47 @@ class ProjectRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun deleteProject(projectId: String): Flow<Response<Boolean>> = flow {
+    override fun deleteProject(userId: String, projectId: String): Flow<Response<Boolean>> = flow {
         operationSuccessful = false
         var operationSuccessful2 = false
         try {
-            firestore.collection(Constants.COLLECTION_NAME_PROJECTS)
-                .document(projectId).delete()
-                .addOnSuccessListener {
+            firestore.collection(Constants.COLLECTION_NAME_USERS)
+                .document(userId)
+                .collection(Constants.COLLECTION_NAME_PROJECTS)
+                .document(projectId)
+                .collection(Constants.COLLECTION_NAME_POSTS)
+                .get().addOnSuccessListener {
+                    it.forEach { document ->
+                        document.reference.delete()
+                    }
                     operationSuccessful = true
                 }.await()
-            firestore.collection(Constants.COLLECTION_NAME_PARTS)
-                .whereEqualTo("projectId", projectId).get()
+            firestore.collection(Constants.COLLECTION_NAME_USERS)
+                .document(userId)
+                .collection(Constants.COLLECTION_NAME_PROJECTS)
+                .document(projectId).delete()
                 .addOnSuccessListener {
-                    for (document in it) {
-                        document.reference.delete();
-                    }
                     operationSuccessful2 = true
                 }.await()
             if(operationSuccessful && operationSuccessful2) {
                 emit(Response.Success(operationSuccessful))
             } else if (!operationSuccessful) {
-                emit(Response.Error("Не удалось удалить проект!"))
-            } else if (!operationSuccessful2) {
                 emit(Response.Error("Не удалось удалить части проекта!"))
+            } else if (!operationSuccessful2) {
+                emit(Response.Error("Не удалось удалить проект!"))
             }
         } catch(e:Exception) {
             emit(Response.Error(e.localizedMessage?:"Неизвестная ошибка"))
         }
     }
 
-    override fun getPart(partId: String): Flow<Response<Part>> = callbackFlow {
+    override fun getPart(userId: String, projectId: String, partId: String): Flow<Response<Part>> = callbackFlow {
         Response.Loading
-        val snapShotListener = firestore.collection(Constants.COLLECTION_NAME_PARTS)
+        val snapShotListener = firestore.collection(Constants.COLLECTION_NAME_USERS)
+            .document(userId)
+            .collection(Constants.COLLECTION_NAME_PROJECTS)
+            .document(projectId)
+            .collection(Constants.COLLECTION_NAME_PARTS)
             .document(partId)
             .addSnapshotListener { snapshot, error ->
                 val response = if(snapshot!=null) {
@@ -155,10 +167,13 @@ class ProjectRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun getProjectParts(projectId: String): Flow<Response<List<Part>>> = callbackFlow {
+    override fun getProjectParts(userId: String, projectId: String): Flow<Response<List<Part>>> = callbackFlow {
         Response.Loading
-        val snapShotListener = firestore.collection(Constants.COLLECTION_NAME_PARTS)
-            .whereEqualTo("projectId", projectId)
+        val snapShotListener = firestore.collection(Constants.COLLECTION_NAME_USERS)
+            .document(userId)
+            .collection(Constants.COLLECTION_NAME_PROJECTS)
+            .document(projectId)
+            .collection(Constants.COLLECTION_NAME_PARTS)
             .orderBy("lastUpdate", Query.Direction.DESCENDING)
             .addSnapshotListener { snapshot, error ->
                 val response = if(snapshot!=null) {
@@ -175,6 +190,7 @@ class ProjectRepositoryImpl @Inject constructor(
     }
 
     override fun createPart(
+        userId: String,
         projectId: String,
         name: String,
         text: String,
@@ -186,9 +202,10 @@ class ProjectRepositoryImpl @Inject constructor(
     ): Flow<Response<Boolean>> = flow {
         operationSuccessful = false
         try {
-            val partId = firestore.collection(Constants.COLLECTION_NAME_PARTS).document().id
+            val partId = firestore.collection(Constants.COLLECTION_NAME_USERS).document(userId)
+                .collection(Constants.COLLECTION_NAME_PROJECTS).document(projectId)
+                .collection(Constants.COLLECTION_NAME_PARTS).document().id
             val newPart = Part(
-                projectId = projectId,
                 partId = partId,
                 name = name,
                 text = text,
@@ -196,7 +213,11 @@ class ProjectRepositoryImpl @Inject constructor(
                 neededRow = neededRow
             )
             if (photoUri !== null) {
-                val uri = storage.reference.child(Constants.FOLDER_NAME_PARTS)
+                val uri = storage.reference.child(Constants.FOLDER_NAME_USERS)
+                    .child(userId)
+                    .child(Constants.FOLDER_NAME_PROJECTS)
+                    .child(projectId)
+                    .child(Constants.FOLDER_NAME_PARTS)
                     .child(partId)
                     .putFile(photoUri).await()
                     .storage.downloadUrl.await()
@@ -206,7 +227,11 @@ class ProjectRepositoryImpl @Inject constructor(
                 val uriList : ArrayList<String> = arrayListOf()
                 schemeUri.forEachIndexed() { index, URI ->
                     if (URI != null) {
-                        val uri = storage.reference.child(Constants.FOLDER_NAME_POSTS)
+                        val uri = storage.reference.child(Constants.FOLDER_NAME_USERS)
+                            .child(userId)
+                            .child(Constants.FOLDER_NAME_PROJECTS)
+                            .child(projectId)
+                            .child(Constants.FOLDER_NAME_PARTS)
                             .child(partId)
                             .child(index.toString())
                             .putFile(URI).await()
@@ -217,14 +242,17 @@ class ProjectRepositoryImpl @Inject constructor(
                 newPart.schemeUrls = uriList
             }
 
-            firestore.collection(Constants.COLLECTION_NAME_PARTS)
+            firestore.collection(Constants.COLLECTION_NAME_USERS).document(userId)
+                .collection(Constants.COLLECTION_NAME_PROJECTS).document(projectId)
+                .collection(Constants.COLLECTION_NAME_PARTS)
                 .document(partId).set(newPart)
                 .addOnSuccessListener {
                     operationSuccessful = true
                 }.await()
             if(operationSuccessful) {
-                firestore.collection(Constants.COLLECTION_NAME_PROJECTS)
-                    .document(projectId).update("neededRows", projectNeededRows + neededRow)
+                firestore.collection(Constants.COLLECTION_NAME_USERS).document(userId)
+                    .collection(Constants.COLLECTION_NAME_PROJECTS).document(projectId)
+                    .update("neededRows", projectNeededRows + neededRow)
                 emit(Response.Success(operationSuccessful))
             } else {
                 emit(Response.Error("Не удалось создать часть!"))
@@ -234,21 +262,20 @@ class ProjectRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun updateSimpleProject(projectId: String, newRows: Int): Flow<Response<Boolean>> = flow {
-        firestore.collection(Constants.COLLECTION_NAME_PROJECTS)
-            .document(projectId).update("countRows", newRows)
-    }
-
     override fun updatePartProgress(
+        userId: String,
         projectId: String,
         partId: String,
         oldRows: Int,
         addRows: Int,
         projectRows: Int
     ): Flow<Response<Boolean>> = flow {
-        firestore.collection(Constants.COLLECTION_NAME_PARTS)
+        firestore.collection(Constants.COLLECTION_NAME_USERS).document(userId)
+            .collection(Constants.COLLECTION_NAME_PROJECTS).document(projectId)
+            .collection(Constants.COLLECTION_NAME_PARTS)
             .document(partId).update("countRow", addRows)
-        firestore.collection(Constants.COLLECTION_NAME_PROJECTS)
+        firestore.collection(Constants.COLLECTION_NAME_USERS).document(userId)
+            .collection(Constants.COLLECTION_NAME_PROJECTS)
             .document(projectId).update(
                 "countRows", projectRows + (addRows - oldRows),
                 "lastUpdate", Timestamp.now()
@@ -257,6 +284,7 @@ class ProjectRepositoryImpl @Inject constructor(
 
 
     override fun deletePart(
+        userId: String,
         projectId: String,
         partId: String,
         rows: Int,
@@ -265,13 +293,16 @@ class ProjectRepositoryImpl @Inject constructor(
         projectNeededRows: Int): Flow<Response<Boolean>> = flow {
         operationSuccessful = false
         try {
-            firestore.collection(Constants.COLLECTION_NAME_PARTS)
+            firestore.collection(Constants.COLLECTION_NAME_USERS).document(userId)
+                .collection(Constants.COLLECTION_NAME_PROJECTS).document(projectId)
+                .collection(Constants.COLLECTION_NAME_PARTS)
                 .document(partId).delete()
                 .addOnSuccessListener {
                     operationSuccessful = true
                 }.await()
             if(operationSuccessful) {
-                firestore.collection(Constants.COLLECTION_NAME_PROJECTS)
+                firestore.collection(Constants.COLLECTION_NAME_USERS).document(userId)
+                    .collection(Constants.COLLECTION_NAME_PROJECTS)
                     .document(projectId).update(
                         "countRows", projectRows - rows,
                         "neededRows", projectNeededRows - neededRows

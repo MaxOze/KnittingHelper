@@ -7,5 +7,5 @@ import kotlinx.coroutines.flow.Flow
 interface NeedleRepository {
     fun getUserNeedles(userId: String): Flow<Response<List<Needle>>>
     fun createNeedle(userId: String, type: String, thickness: Float): Flow<Response<Boolean>>
-    fun deleteNeedle(needleId: String): Flow<Response<Boolean>>
+    fun deleteNeedle(userId: String, needleId: String): Flow<Response<Boolean>>
 }

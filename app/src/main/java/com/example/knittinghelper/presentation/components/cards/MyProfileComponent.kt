@@ -23,7 +23,6 @@ import com.example.knittinghelper.presentation.social.viewmodels.UserProfileView
 
 @Composable
 fun MyProfile(userName: String, bio: String, photoUri: String, paddingValues: PaddingValues, navController: NavController) {
-    val expanded = remember { mutableStateOf(false) }
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -59,7 +58,7 @@ fun MyProfile(userName: String, bio: String, photoUri: String, paddingValues: Pa
                     Spacer(modifier = Modifier.width(16.dp))
                     Text(
                         text = userName,
-                        style = MaterialTheme.typography.headlineMedium,
+                        style = MaterialTheme.typography.headlineSmall,
                         modifier = Modifier.align(Alignment.CenterVertically)
                     )
                 }
@@ -85,21 +84,21 @@ fun MyProfile(userName: String, bio: String, photoUri: String, paddingValues: Pa
                             onClick = { navController.navigate(Screens.YarnStockScreen.route) },
                             modifier = Modifier.weight(1f),
                         ) {
-                            Text("Пряжа", style = MaterialTheme.typography.labelMedium)
+                            Text("Пряжа", style = MaterialTheme.typography.labelSmall)
                         }
-                        Spacer(modifier = Modifier.width(8.dp))
+                        Spacer(modifier = Modifier.width(4.dp))
                         Button(
                             onClick = { navController.navigate(Screens.NeedleStockScreen.route) },
                             modifier = Modifier.weight(1f),
                         ) {
-                            Text("Спицы", style = MaterialTheme.typography.labelMedium)
+                            Text("Спицы", style = MaterialTheme.typography.labelSmall)
                         }
-                        Spacer(modifier = Modifier.width(8.dp))
+                        Spacer(modifier = Modifier.width(4.dp))
                         Button(
                             onClick = { navController.navigate(Screens.SubsScreen.route) },
                             modifier = Modifier.weight(1f),
                         ) {
-                            Text("Подписки", style = MaterialTheme.typography.labelMedium)
+                            Text("Подписки", style = MaterialTheme.typography.labelSmall)
                         }
                     }
                 }
@@ -145,7 +144,7 @@ fun Profile(userId: String, userName: String, bio: String, photoUri: String, pad
                 Spacer(modifier = Modifier.width(16.dp))
                 Text(
                     text = userName,
-                    style = MaterialTheme.typography.headlineMedium,
+                    style = MaterialTheme.typography.headlineSmall,
                     modifier = Modifier.align(Alignment.CenterVertically)
                 )
             }

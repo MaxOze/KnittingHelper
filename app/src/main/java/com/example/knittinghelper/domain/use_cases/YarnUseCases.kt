@@ -35,14 +35,15 @@ class UpdateYarn @Inject constructor(
     private val repository: YarnRepository
 ) {
     operator fun invoke(
+        userId: String,
         yarnId: String,
         text: String,
         count: Int
-    ) = repository.updateYarn(yarnId, text, count)
+    ) = repository.updateYarn(userId, yarnId, text, count)
 }
 
 class DeleteYarn @Inject constructor(
     private val repository: YarnRepository
 ) {
-    operator fun invoke(yarnId: String) = repository.deleteYarn(yarnId)
+    operator fun invoke(userId: String, yarnId: String) = repository.deleteYarn(userId, yarnId)
 }

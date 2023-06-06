@@ -1,7 +1,6 @@
 package com.example.knittinghelper.domain.model
 
 data class Yarn(
-    val userId: String = "",
     val yarnId: String = "",
     var color: String = "",
     var material: String = "",

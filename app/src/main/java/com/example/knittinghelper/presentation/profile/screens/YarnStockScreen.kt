@@ -49,6 +49,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.toLowerCase
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -57,6 +58,7 @@ import com.example.knittinghelper.presentation.components.cards.YarnCardComponen
 import com.example.knittinghelper.presentation.navigation.BottomNavigationMenu
 import com.example.knittinghelper.presentation.profile.viewmodels.YarnViewModel
 import com.example.knittinghelper.util.Response
+import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -268,10 +270,11 @@ fun YarnStockScreen(navController: NavController) {
                                     horizontalArrangement = Arrangement.SpaceBetween
                                 ) {
                                     OutlinedTextField(
+                                        singleLine = true,
                                         label = {
                                             Text(text = "Поиск")
                                         },
-                                        modifier = Modifier.weight(8f),
+                                        modifier = Modifier.weight(6.5f),
                                         value = search.value,
                                         onValueChange = {
                                             search.value = it
@@ -291,11 +294,11 @@ fun YarnStockScreen(navController: NavController) {
                             }
                             items(yarns) { yarn ->
                                 if (searchBool.value) {
-                                    if (search.value in yarn.material ||
-                                        search.value in yarn.color ||
-                                        search.value in yarn.text ||
-                                        search.value in yarn.weight.toString() ||
-                                        search.value in yarn.length.toString())
+                                    if (search.value.lowercase(Locale.ROOT) in yarn.material.lowercase(Locale.ROOT) ||
+                                        search.value.lowercase(Locale.ROOT) in yarn.color.lowercase(Locale.ROOT) ||
+                                        search.value.lowercase(Locale.ROOT) in yarn.text.lowercase(Locale.ROOT) ||
+                                        search.value in yarn.weight.toString()+"г" ||
+                                        search.value in yarn.length.toString()+"м")
                                         YarnCardComponent(yarn, delete, update, viewModel)
                                 } else {
                                     YarnCardComponent(yarn, delete, update, viewModel)
@@ -329,28 +332,29 @@ fun YarnStockScreen(navController: NavController) {
                         is Response.Success -> {
                             if (updateResponse.data) {
                                 deleteSuccess.value++
-                                AlertDialog(onDismissRequest = { viewModel.updateOk() }) {
-                                    Surface(
-                                        modifier = Modifier
-                                            .wrapContentWidth()
-                                            .wrapContentHeight(),
-                                        shape = MaterialTheme.shapes.large,
-                                        tonalElevation = AlertDialogDefaults.TonalElevation
-                                    ) {
-                                        Column(modifier = Modifier.padding(16.dp)) {
-                                            Text(
-                                                text = "Заметка изменена",
-                                            )
-                                            Spacer(modifier = Modifier.height(24.dp))
-                                            TextButton(
-                                                onClick = { viewModel.updateOk() },
-                                                modifier = Modifier.align(Alignment.End)
-                                            ) {
-                                                Text("Ок")
-                                            }
-                                        }
-                                    }
-                                }
+                                viewModel.updateOk()
+//                                AlertDialog(onDismissRequest = { viewModel.updateOk() }) {
+//                                    Surface(
+//                                        modifier = Modifier
+//                                            .wrapContentWidth()
+//                                            .wrapContentHeight(),
+//                                        shape = MaterialTheme.shapes.large,
+//                                        tonalElevation = AlertDialogDefaults.TonalElevation
+//                                    ) {
+//                                        Column(modifier = Modifier.padding(16.dp)) {
+//                                            Text(
+//                                                text = "Заметка изменена",
+//                                            )
+//                                            Spacer(modifier = Modifier.height(24.dp))
+//                                            TextButton(
+//                                                onClick = { viewModel.updateOk() },
+//                                                modifier = Modifier.align(Alignment.End)
+//                                            ) {
+//                                                Text("Ок")
+//                                            }
+//                                        }
+//                                    }
+//                                }
                             }
                         }
                         is Response.Error -> {

@@ -28,7 +28,7 @@ import com.example.knittinghelper.presentation.components.util.ProgressBarCompon
 
 
 @Composable
-fun PartCardComponent(delete: MutableState<Part?>, count: Int, part: Part, navController: NavController) {
+fun PartCardComponent(projectId: String, delete: MutableState<Part?>, count: Int, part: Part, navController: NavController) {
     val menu = remember { mutableStateOf(false) }
     Card(
         elevation = CardDefaults.cardElevation(defaultElevation = 10.dp, pressedElevation = 3.dp),
@@ -36,7 +36,7 @@ fun PartCardComponent(delete: MutableState<Part?>, count: Int, part: Part, navCo
         modifier = Modifier.padding(top = 16.dp, start = 16.dp, end = 16.dp)
             .clickable(
                 onClick = {
-                    navController.navigate("projects/" + part.projectId + "/" + part.partId + "/" + count.toString() + "/")
+                    navController.navigate("projects/" + projectId + "/" + part.partId + "/" + count.toString() + "/")
                 }
             )
     ) {

@@ -139,7 +139,7 @@ fun PartScreen(navController: NavController) {
                                     )
                                 } else {
                                     Image(
-                                        painter = painterResource(id = R.drawable.ic_launcher_background),
+                                        painter = painterResource(id = R.drawable.photo),
                                         contentDescription = "Project Image",
                                         contentScale = ContentScale.Crop,
                                         modifier = Modifier

@@ -99,7 +99,6 @@ object KnittingHelperModule {
         getPart = GetPart(repository = repository),
         getProjectParts = GetProjectParts(repository = repository),
         createPart = CreatePart(repository = repository),
-        updateSimpleProject = UpdateSimpleProject(repository = repository),
         updatePartProgress = UpdatePartProgress(repository = repository),
         deletePart = DeletePart(repository = repository)
     )

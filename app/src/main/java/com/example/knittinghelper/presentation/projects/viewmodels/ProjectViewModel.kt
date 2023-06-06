@@ -40,7 +40,7 @@ class ProjectViewModel @Inject constructor(
     fun getProjectInfo() {
         if(userId != null) {
             viewModelScope.launch {
-                projectUseCases.getProject(projectId).collect {
+                projectUseCases.getProject(userId, projectId).collect {
                     _getProjectData.value = it
                 }
             }
@@ -50,7 +50,7 @@ class ProjectViewModel @Inject constructor(
     fun getProjectParts() {
         if(userId != null) {
             viewModelScope.launch {
-                projectUseCases.getProjectParts(projectId).collect {
+                projectUseCases.getProjectParts(userId, projectId).collect {
                     _getProjectPartsData.value = it
                 }
             }
@@ -69,6 +69,7 @@ class ProjectViewModel @Inject constructor(
         if(userId != null) {
             viewModelScope.launch {
                 projectUseCases.createPart(
+                    userId,
                     projectId,
                     name,
                     text,
@@ -88,21 +89,11 @@ class ProjectViewModel @Inject constructor(
         _createPartData.value = Response.Success(false)
     }
 
-    fun updateSimpleProject(newRows: Int) {
-        if(userId != null) {
-            viewModelScope.launch {
-                projectUseCases.updateSimpleProject(
-                    projectId,
-                    newRows
-                ).collect { }
-            }
-        }
-    }
-
     fun deletePart(part: Part, project: Project) {
         if(userId != null) {
             viewModelScope.launch {
                 projectUseCases.deletePart(
+                    userId,
                     projectId,
                     part.partId,
                     part.countRow,
